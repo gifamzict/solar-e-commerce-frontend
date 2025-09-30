@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { AddAdminDialog } from "@/components/AddAdminDialog";
 import {
   Table,
   TableBody,
@@ -10,13 +11,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Shield, Edit, Trash2 } from "lucide-react";
+import { Shield, Edit, Trash2 } from "lucide-react";
 
 const adminUsers = [
-  { id: 1, name: "Admin User", email: "admin@gifamz.com", role: "Super Admin", status: "Active", lastLogin: "2024-01-15 10:30" },
-  { id: 2, name: "John Manager", email: "john.m@gifamz.com", role: "Manager", status: "Active", lastLogin: "2024-01-15 09:15" },
-  { id: 3, name: "Sarah Support", email: "sarah.s@gifamz.com", role: "Support", status: "Active", lastLogin: "2024-01-14 16:45" },
-  { id: 4, name: "Mike Sales", email: "mike.s@gifamz.com", role: "Sales", status: "Active", lastLogin: "2024-01-13 14:20" },
+  { id: 1, name: "Michael Adebayo", email: "michael@solarglow.com", role: "Super Admin", status: "Active", lastLogin: "2024-01-15 10:30" },
+  { id: 2, name: "Fatima Hassan", email: "fatima@solarglow.com", role: "Manager", status: "Active", lastLogin: "2024-01-15 09:15" },
+  { id: 3, name: "Chidi Okafor", email: "chidi@solarglow.com", role: "Support", status: "Active", lastLogin: "2024-01-14 16:45" },
+  { id: 4, name: "Blessing Eze", email: "blessing@solarglow.com", role: "Sales", status: "Active", lastLogin: "2024-01-13 14:20" },
 ];
 
 const roleColors = {
@@ -32,12 +33,9 @@ export default function AdminUsers() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Admin Users</h1>
-          <p className="text-muted-foreground mt-1">Manage admin roles and permissions</p>
+          <p className="text-muted-foreground mt-1">Manage SolarGlow Tech administrators</p>
         </div>
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" />
-          Add Admin User
-        </Button>
+        <AddAdminDialog />
       </div>
 
       <Card>

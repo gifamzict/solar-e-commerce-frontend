@@ -7,6 +7,7 @@ import { DashboardLayout } from "./components/DashboardLayout";
 import { StoreLayout } from "./components/StoreLayout";
 import Dashboard from "./pages/Dashboard";
 import Orders from "./pages/Orders";
+import OrderDetail from "./pages/OrderDetail";
 import Products from "./pages/Products";
 import Customers from "./pages/Customers";
 import Categories from "./pages/Categories";
@@ -40,6 +41,7 @@ const App = () => (
           {/* Admin Routes */}
           <Route path="/" element={<DashboardLayout><Dashboard /></DashboardLayout>} />
           <Route path="/orders" element={<DashboardLayout><Orders /></DashboardLayout>} />
+          <Route path="/orders/:id" element={<DashboardLayout><OrderDetail /></DashboardLayout>} />
           <Route path="/products" element={<DashboardLayout><Products /></DashboardLayout>} />
           <Route path="/customers" element={<DashboardLayout><Customers /></DashboardLayout>} />
           <Route path="/categories" element={<DashboardLayout><Categories /></DashboardLayout>} />

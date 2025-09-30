@@ -3,6 +3,23 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   Table,
   TableBody,
@@ -11,17 +28,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Search, Plus, Edit, Trash2 } from "lucide-react";
+import { Search, Plus, Edit, Trash2, Upload } from "lucide-react";
 
 const products = [
-  { id: 1, name: "Wireless Headphones", category: "Audio", price: "$79.99", stock: 45, status: "Active", sales: 1234 },
-  { id: 2, name: "Smart Watch Pro", category: "Wearables", price: "$299.99", stock: 23, status: "Active", sales: 987 },
-  { id: 3, name: "Gaming Mouse", category: "Gaming", price: "$49.99", stock: 12, status: "Low Stock", sales: 756 },
-  { id: 4, name: "Mechanical Keyboard", category: "Computing", price: "$129.99", stock: 8, status: "Low Stock", sales: 543 },
-  { id: 5, name: "USB-C Hub", category: "Accessories", price: "$34.99", stock: 67, status: "Active", sales: 432 },
-  { id: 6, name: "Laptop Stand", category: "Accessories", price: "$45.00", stock: 89, status: "Active", sales: 321 },
-  { id: 7, name: "Wireless Charger", category: "Accessories", price: "$29.99", stock: 0, status: "Out of Stock", sales: 298 },
-  { id: 8, name: "4K Webcam", category: "Computing", price: "$149.99", stock: 34, status: "Active", sales: 267 },
+  { id: 1, name: "300W Monocrystalline Solar Panel", category: "Solar Panels", price: "₦450,000", stock: 45, status: "Active", sales: 234 },
+  { id: 2, name: "Solar Battery 200Ah", category: "Solar Batteries", price: "₦280,000", stock: 23, status: "Active", sales: 187 },
+  { id: 3, name: "Solar Street Light 100W", category: "Street Lights", price: "₦125,000", stock: 12, status: "Low Stock", sales: 156 },
+  { id: 4, name: "5KVA Solar Inverter", category: "Solar Inverters", price: "₦650,000", stock: 8, status: "Low Stock", sales: 143 },
+  { id: 5, name: "Solar Charge Controller 60A", category: "Accessories", price: "₦85,000", stock: 67, status: "Active", sales: 132 },
+  { id: 6, name: "Portable Solar Charger", category: "Gadgets", price: "₦45,000", stock: 89, status: "Active", sales: 121 },
+  { id: 7, name: "Solar Water Pump", category: "Solar Pumps", price: "₦320,000", stock: 0, status: "Out of Stock", sales: 98 },
+  { id: 8, name: "Solar Security Light", category: "Security", price: "₦75,000", stock: 34, status: "Active", sales: 87 },
 ];
 
 const statusColors = {
@@ -32,6 +49,7 @@ const statusColors = {
 
 export default function Products() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
   const filteredProducts = products.filter(product =>
     product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -43,12 +61,110 @@ export default function Products() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Products Management</h1>
-          <p className="text-muted-foreground mt-1">Manage your product catalog</p>
+          <p className="text-muted-foreground mt-1">Manage your solar product catalog</p>
         </div>
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" />
-          Add Product
-        </Button>
+        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="gap-2">
+              <Plus className="h-4 w-4" />
+              Add Product
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Add New Solar Product</DialogTitle>
+              <DialogDescription>
+                Fill in the product details to add it to your catalog
+              </DialogDescription>
+            </DialogHeader>
+            <form className="space-y-4 mt-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Product Name *</Label>
+                  <Input id="name" placeholder="e.g., 300W Solar Panel" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="category">Category *</Label>
+                  <Select>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="panels">Solar Panels</SelectItem>
+                      <SelectItem value="batteries">Solar Batteries</SelectItem>
+                      <SelectItem value="inverters">Solar Inverters</SelectItem>
+                      <SelectItem value="lights">Street Lights</SelectItem>
+                      <SelectItem value="gadgets">Gadgets</SelectItem>
+                      <SelectItem value="accessories">Accessories</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="price">Price (₦) *</Label>
+                  <Input id="price" type="number" placeholder="450000" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="stock">Stock Quantity *</Label>
+                  <Input id="stock" type="number" placeholder="50" />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="description">Description *</Label>
+                <Textarea 
+                  id="description" 
+                  placeholder="Detailed product description..."
+                  rows={4}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="power">Power Output</Label>
+                  <Input id="power" placeholder="e.g., 300W" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="warranty">Warranty Period</Label>
+                  <Input id="warranty" placeholder="e.g., 10 years" />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="specs">Specifications</Label>
+                <Textarea 
+                  id="specs" 
+                  placeholder="Key specifications (one per line)"
+                  rows={4}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="images">Product Images</Label>
+                <div className="border-2 border-dashed rounded-md p-6 text-center hover:border-primary transition-colors cursor-pointer">
+                  <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                  <p className="text-sm text-muted-foreground">
+                    Click to upload or drag and drop
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    PNG, JPG up to 5MB (Max 5 images)
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4">
+                <Button type="button" variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit">
+                  Add Product
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4">

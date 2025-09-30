@@ -4,52 +4,18 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import { useCart } from "@/contexts/CartContext";
 import { Minus, Plus, X, ShoppingBag } from "lucide-react";
 
 export default function Cart() {
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 1,
-      name: "300W Monocrystalline Solar Panel",
-      price: 450000,
-      quantity: 2,
-      image: "/placeholder.svg"
-    },
-    {
-      id: 2,
-      name: "100W Solar Street Light",
-      price: 125000,
-      quantity: 1,
-      image: "/placeholder.svg"
-    },
-    {
-      id: 3,
-      name: "Solar Power Bank 20,000mAh",
-      price: 18500,
-      quantity: 3,
-      image: "/placeholder.svg"
-    }
-  ]);
-
+  const { items, updateQuantity, removeFromCart, cartTotal } = useCart();
   const [promoCode, setPromoCode] = useState("");
 
-  const updateQuantity = (id: number, newQuantity: number) => {
-    if (newQuantity < 1) return;
-    setCartItems(cartItems.map(item => 
-      item.id === id ? { ...item, quantity: newQuantity } : item
-    ));
-  };
-
-  const removeItem = (id: number) => {
-    setCartItems(cartItems.filter(item => item.id !== id));
-  };
-
-  const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const shipping = subtotal > 500000 ? 0 : 15000;
+  const shipping = cartTotal > 500000 ? 0 : 15000;
   const discount = 0;
-  const total = subtotal + shipping - discount;
+  const total = cartTotal + shipping - discount;
 
-  if (cartItems.length === 0) {
+  if (items.length === 0) {
     return (
       <div className="container mx-auto px-4 py-20 text-center">
         <ShoppingBag className="h-24 w-24 text-muted-foreground mx-auto mb-4" />
@@ -71,7 +37,7 @@ export default function Cart() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Cart Items */}
         <div className="lg:col-span-2 space-y-4">
-          {cartItems.map((item) => (
+          {items.map((item) => (
             <Card key={item.id}>
               <CardContent className="p-4">
                 <div className="flex gap-4">
@@ -88,7 +54,7 @@ export default function Cart() {
                         variant="ghost" 
                         size="icon"
                         className="h-8 w-8 text-destructive hover:text-destructive"
-                        onClick={() => removeItem(item.id)}
+                        onClick={() => removeFromCart(item.id)}
                       >
                         <X className="h-4 w-4" />
                       </Button>
@@ -157,7 +123,7 @@ export default function Cart() {
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Subtotal</span>
-                  <span className="font-medium">₦{subtotal.toLocaleString()}</span>
+                  <span className="font-medium">₦{cartTotal.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Shipping</span>

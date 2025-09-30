@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,14 +22,14 @@ import {
 import { Search, Eye, Download } from "lucide-react";
 
 const orders = [
-  { id: "#ORD-2024-001", customer: "John Doe", date: "2024-01-15", total: "$245.50", status: "Delivered", items: 3 },
-  { id: "#ORD-2024-002", customer: "Jane Smith", date: "2024-01-14", total: "$189.99", status: "Processing", items: 2 },
-  { id: "#ORD-2024-003", customer: "Mike Johnson", date: "2024-01-14", total: "$567.80", status: "Shipped", items: 5 },
-  { id: "#ORD-2024-004", customer: "Sarah Williams", date: "2024-01-13", total: "$99.99", status: "Pending", items: 1 },
-  { id: "#ORD-2024-005", customer: "Tom Brown", date: "2024-01-13", total: "$324.50", status: "Delivered", items: 4 },
-  { id: "#ORD-2024-006", customer: "Emily Davis", date: "2024-01-12", total: "$456.00", status: "Cancelled", items: 3 },
-  { id: "#ORD-2024-007", customer: "Chris Wilson", date: "2024-01-12", total: "$789.99", status: "Processing", items: 6 },
-  { id: "#ORD-2024-008", customer: "Anna Martinez", date: "2024-01-11", total: "$234.50", status: "Shipped", items: 2 },
+  { id: "#ORD-2024-001", customer: "John Doe", date: "2024-01-15", total: "₦2,385,000", status: "Delivered", items: 6 },
+  { id: "#ORD-2024-002", customer: "Jane Smith", date: "2024-01-14", total: "₦1,300,000", status: "Processing", items: 10 },
+  { id: "#ORD-2024-003", customer: "Mike Johnson", date: "2024-01-14", total: "₦950,000", status: "Shipped", items: 3 },
+  { id: "#ORD-2024-004", customer: "Sarah Williams", date: "2024-01-13", total: "₦450,000", status: "Pending", items: 1 },
+  { id: "#ORD-2024-005", customer: "Tom Brown", date: "2024-01-13", total: "₦1,750,000", status: "Delivered", items: 8 },
+  { id: "#ORD-2024-006", customer: "Emily Davis", date: "2024-01-12", total: "₦680,000", status: "Cancelled", items: 2 },
+  { id: "#ORD-2024-007", customer: "Chris Wilson", date: "2024-01-12", total: "₦3,200,000", status: "Processing", items: 15 },
+  { id: "#ORD-2024-008", customer: "Anna Martinez", date: "2024-01-11", total: "₦875,000", status: "Shipped", items: 4 },
 ];
 
 const statusColors = {
@@ -40,6 +41,7 @@ const statusColors = {
 };
 
 export default function Orders() {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
@@ -117,7 +119,11 @@ export default function Orders() {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="icon">
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      onClick={() => navigate(`/admin/orders/${order.id}`)}
+                    >
                       <Eye className="h-4 w-4" />
                     </Button>
                   </TableCell>

@@ -34,19 +34,19 @@ const revenueData = [
 ];
 
 const topProducts = [
-  { name: "Wireless Headphones", sales: 1234, revenue: "$49,360", stock: 45 },
-  { name: "Smart Watch Pro", sales: 987, revenue: "$39,480", stock: 23 },
-  { name: "Gaming Mouse", sales: 756, revenue: "$22,680", stock: 12 },
-  { name: "Mechanical Keyboard", sales: 543, revenue: "$54,300", stock: 8 },
-  { name: "USB-C Hub", sales: 432, revenue: "$12,960", stock: 67 },
+  { name: "300W Solar Panel", sales: 234, revenue: "₦105,300,000", stock: 45 },
+  { name: "Solar Battery 200Ah", sales: 187, revenue: "₦52,360,000", stock: 23 },
+  { name: "Solar Street Light", sales: 156, revenue: "₦19,500,000", stock: 12 },
+  { name: "5KVA Inverter", sales: 143, revenue: "₦92,950,000", stock: 8 },
+  { name: "Solar Charger", sales: 132, revenue: "₦5,940,000", stock: 67 },
 ];
 
 const recentOrders = [
-  { id: "#ORD-2024-001", customer: "John Doe", product: "Wireless Headphones", amount: "$120.00", status: "Delivered" },
-  { id: "#ORD-2024-002", customer: "Jane Smith", product: "Smart Watch Pro", amount: "$89.99", status: "Processing" },
-  { id: "#ORD-2024-003", customer: "Mike Johnson", product: "Gaming Mouse", amount: "$45.50", status: "Shipped" },
-  { id: "#ORD-2024-004", customer: "Sarah Williams", product: "Mechanical Keyboard", amount: "$159.99", status: "Pending" },
-  { id: "#ORD-2024-005", customer: "Tom Brown", product: "USB-C Hub", amount: "$34.99", status: "Delivered" },
+  { id: "#ORD-2024-001", customer: "John Adebayo", product: "300W Solar Panel", amount: "₦450,000", status: "Delivered" },
+  { id: "#ORD-2024-002", customer: "Jane Okonkwo", product: "Solar Battery", amount: "₦280,000", status: "Processing" },
+  { id: "#ORD-2024-003", customer: "Mike Ibrahim", product: "Street Light 100W", amount: "₦125,000", status: "Shipped" },
+  { id: "#ORD-2024-004", customer: "Sarah Bello", product: "Solar Inverter", amount: "₦650,000", status: "Pending" },
+  { id: "#ORD-2024-005", customer: "Tom Chukwu", product: "Solar Charger", amount: "₦45,000", status: "Delivered" },
 ];
 
 const statusColors = {
@@ -67,30 +67,30 @@ export default function Dashboard() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Revenue"
-          value="$45,231"
+          value="₦275.2M"
           change="+20.1% from last month"
           changeType="positive"
           icon={DollarSign}
         />
         <StatCard
-          title="Orders"
-          value="2,345"
+          title="Solar Orders"
+          value="1,852"
           change="+12.5% from last month"
           changeType="positive"
           icon={ShoppingCart}
         />
         <StatCard
           title="Products Sold"
-          value="12,234"
+          value="8,652"
           change="+8.2% from last month"
           changeType="positive"
           icon={Package}
         />
         <StatCard
           title="Conversion Rate"
-          value="3.24%"
-          change="-0.4% from last month"
-          changeType="negative"
+          value="4.12%"
+          change="+0.8% from last month"
+          changeType="positive"
           icon={TrendingUp}
         />
       </div>
@@ -194,11 +194,11 @@ export default function Dashboard() {
           <CardContent>
             <ResponsiveContainer width="100%" height={250}>
               <BarChart data={[
-                { category: "Electronics", sales: 4800 },
-                { category: "Accessories", sales: 3200 },
-                { category: "Gaming", sales: 2800 },
-                { category: "Audio", sales: 2400 },
-                { category: "Computing", sales: 1900 },
+                { category: "Solar Panels", sales: 4800 },
+                { category: "Batteries", sales: 3200 },
+                { category: "Street Lights", sales: 2800 },
+                { category: "Inverters", sales: 2400 },
+                { category: "Gadgets", sales: 1900 },
               ]}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                 <XAxis dataKey="category" className="text-xs" />

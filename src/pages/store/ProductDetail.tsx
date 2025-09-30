@@ -1,15 +1,39 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { useCart } from "@/contexts/CartContext";
 import { ShoppingCart, Heart, Share2, Star, Minus, Plus, Check } from "lucide-react";
 
 export default function ProductDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
+
+  const handleAddToCart = () => {
+    addToCart({
+      id: id || '1',
+      name: product.name,
+      price: product.price,
+      image: product.images[0],
+      category: 'Solar Panels'
+    }, quantity);
+  };
+
+  const handleBuyNow = () => {
+    addToCart({
+      id: id || '1',
+      name: product.name,
+      price: product.price,
+      image: product.images[0],
+      category: 'Solar Panels'
+    }, quantity);
+    navigate('/store/checkout');
+  };
 
   const product = {
     name: "300W Monocrystalline Solar Panel",
@@ -135,7 +159,7 @@ export default function ProductDetail() {
             </div>
 
             <div className="flex gap-3">
-              <Button size="lg" className="flex-1 solar-glow hover-lift">
+              <Button size="lg" className="flex-1 solar-glow hover-lift" onClick={handleAddToCart}>
                 <ShoppingCart className="mr-2 h-5 w-5" />
                 Add to Cart
               </Button>
@@ -147,7 +171,7 @@ export default function ProductDetail() {
               </Button>
             </div>
 
-            <Button size="lg" variant="secondary" className="w-full">
+            <Button size="lg" variant="secondary" className="w-full" onClick={handleBuyNow}>
               Buy Now
             </Button>
           </div>

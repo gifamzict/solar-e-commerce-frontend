@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Search, ShoppingCart, User, Menu, X, Sun } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useCart } from "@/contexts/CartContext";
 import {
   Sheet,
   SheetContent,
@@ -10,7 +11,7 @@ import {
 } from "@/components/ui/sheet";
 
 export function StoreHeader() {
-  const [cartCount] = useState(3);
+  const { cartCount } = useCart();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navLinks = [

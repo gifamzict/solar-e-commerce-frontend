@@ -1,14 +1,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Edit, Trash2, Copy } from "lucide-react";
+import { AddPromotionDialog } from "@/components/AddPromotionDialog";
+import { Edit, Trash2, Copy } from "lucide-react";
 
 const promotions = [
-  { id: 1, name: "SUMMER2024", type: "Percentage", value: "20%", uses: 145, limit: 500, expires: "2024-08-31", status: "Active" },
-  { id: 2, name: "WELCOME10", type: "Percentage", value: "10%", uses: 287, limit: 1000, expires: "2024-12-31", status: "Active" },
-  { id: 3, name: "FREESHIP", type: "Free Shipping", value: "Free", uses: 523, limit: null, expires: "2024-06-30", status: "Active" },
-  { id: 4, name: "BLACKFRIDAY", type: "Percentage", value: "40%", uses: 0, limit: 200, expires: "2024-11-29", status: "Scheduled" },
-  { id: 5, name: "SPRING15", type: "Percentage", value: "15%", uses: 198, limit: 300, expires: "2024-03-31", status: "Expired" },
+  { id: 1, name: "SOLARPANEL20", type: "Percentage", value: "20%", uses: 145, limit: 500, expires: "2024-08-31", status: "Active" },
+  { id: 2, name: "NEWSOLAR10", type: "Percentage", value: "10%", uses: 287, limit: 1000, expires: "2024-12-31", status: "Active" },
+  { id: 3, name: "BATTERY50K", type: "Fixed Amount", value: "₦50,000", uses: 89, limit: 200, expires: "2024-06-30", status: "Active" },
+  { id: 4, name: "STREETLIGHT30", type: "Percentage", value: "30%", uses: 0, limit: 100, expires: "2024-11-29", status: "Scheduled" },
+  { id: 5, name: "SOLARXMAS", type: "Percentage", value: "25%", uses: 198, limit: 300, expires: "2024-03-31", status: "Expired" },
 ];
 
 const statusColors = {
@@ -23,12 +24,9 @@ export default function Promotions() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Promotions & Discounts</h1>
-          <p className="text-muted-foreground mt-1">Manage coupons, deals, and sales events</p>
+          <p className="text-muted-foreground mt-1">Manage solar product promotions</p>
         </div>
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" />
-          Create Promotion
-        </Button>
+        <AddPromotionDialog />
       </div>
 
       <div className="grid gap-4">

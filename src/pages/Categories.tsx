@@ -1,15 +1,16 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Edit, Trash2 } from "lucide-react";
+import { AddCategoryDialog } from "@/components/AddCategoryDialog";
+import { Edit, Trash2 } from "lucide-react";
 
 const categories = [
-  { id: 1, name: "Electronics", products: 145, subcategories: 8, status: "Active" },
-  { id: 2, name: "Audio", products: 67, subcategories: 4, status: "Active" },
-  { id: 3, name: "Gaming", products: 89, subcategories: 6, status: "Active" },
-  { id: 4, name: "Computing", products: 123, subcategories: 10, status: "Active" },
-  { id: 5, name: "Accessories", products: 234, subcategories: 12, status: "Active" },
-  { id: 6, name: "Wearables", products: 45, subcategories: 3, status: "Active" },
+  { id: 1, name: "Solar Panels", products: 45, subcategories: 6, status: "Active" },
+  { id: 2, name: "Solar Batteries", products: 32, subcategories: 4, status: "Active" },
+  { id: 3, name: "Solar Inverters", products: 28, subcategories: 5, status: "Active" },
+  { id: 4, name: "Street Lights", products: 56, subcategories: 3, status: "Active" },
+  { id: 5, name: "Solar Gadgets", products: 89, subcategories: 8, status: "Active" },
+  { id: 6, name: "Accessories", products: 124, subcategories: 12, status: "Active" },
 ];
 
 export default function Categories() {
@@ -18,12 +19,9 @@ export default function Categories() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Categories & Tags</h1>
-          <p className="text-muted-foreground mt-1">Organize your product catalog</p>
+          <p className="text-muted-foreground mt-1">Organize solar product categories</p>
         </div>
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" />
-          Add Category
-        </Button>
+        <AddCategoryDialog />
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
