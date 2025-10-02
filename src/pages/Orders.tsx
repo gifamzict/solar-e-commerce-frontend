@@ -122,7 +122,7 @@ export default function Orders() {
                     <Button 
                       variant="ghost" 
                       size="icon"
-                      onClick={() => navigate(`/admin/orders/${order.id}`)}
+                      onClick={() => navigate(`/management-portal/orders/${order.id}`)}
                     >
                       <Eye className="h-4 w-4" />
                     </Button>

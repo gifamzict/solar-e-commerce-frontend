@@ -56,7 +56,7 @@ export default function OrderDetail() {
   if (!order) {
     return (
       <div className="space-y-6 animate-fade-in">
-        <Button variant="ghost" onClick={() => navigate("/admin/orders")}>
+        <Button variant="ghost" onClick={() => navigate("/management-portal/orders")}>
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Orders
         </Button>
@@ -71,7 +71,7 @@ export default function OrderDetail() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" onClick={() => navigate("/admin/orders")}>
+          <Button variant="ghost" onClick={() => navigate("/management-portal/orders")}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back
           </Button>

@@ -15,12 +15,12 @@ export function StoreHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navLinks = [
-    { name: "Home", path: "/store" },
-    { name: "Solar Panels", path: "/store/panels" },
-    { name: "Street Lights", path: "/store/street-lights" },
-    { name: "Gadgets", path: "/store/gadgets" },
-    { name: "About Us", path: "/store/about" },
-    { name: "Contact", path: "/store/contact" },
+    { name: "Home", path: "/" },
+    { name: "Solar Panels", path: "/solar-panels" },
+    { name: "Street Lights", path: "/street-lights" },
+    { name: "Gadgets", path: "/gadgets" },
+    { name: "About Us", path: "/about" },
+    { name: "Contact", path: "/contact" },
   ];
 
   return (
@@ -28,7 +28,7 @@ export function StoreHeader() {
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link to="/store" className="flex items-center gap-2 group">
+          <Link to="/" className="flex items-center gap-2 group">
             <Sun className="h-8 w-8 text-primary solar-pulse" />
             <span className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
               SolarGlow Tech
@@ -60,7 +60,7 @@ export function StoreHeader() {
             </div>
 
             {/* Cart */}
-            <Link to="/store/cart">
+            <Link to="/cart">
               <Button variant="ghost" size="icon" className="relative">
                 <ShoppingCart className="h-5 w-5" />
                 {cartCount > 0 && (
@@ -72,7 +72,7 @@ export function StoreHeader() {
             </Link>
 
             {/* User Account */}
-            <Link to="/store/auth">
+            <Link to="/auth">
               <Button variant="default" className="hidden md:flex gap-2 solar-glow">
                 <User className="h-4 w-4" />
                 Sign In
@@ -98,7 +98,7 @@ export function StoreHeader() {
                       {link.name}
                     </Link>
                   ))}
-                  <Link to="/store/auth" onClick={() => setMobileMenuOpen(false)}>
+                  <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
                     <Button className="w-full mt-4 solar-glow">
                       <User className="h-4 w-4 mr-2" />
                       Sign In / Sign Up

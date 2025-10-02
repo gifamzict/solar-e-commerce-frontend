@@ -26,17 +26,17 @@ import {
 } from "@/components/ui/sidebar";
 
 const menuItems = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { title: "Orders", url: "/orders", icon: ShoppingCart },
-  { title: "Products", url: "/products", icon: Package },
-  { title: "Customers", url: "/customers", icon: Users },
-  { title: "Categories", url: "/categories", icon: FolderTree },
-  { title: "Inventory", url: "/inventory", icon: Boxes },
-  { title: "Promotions", url: "/promotions", icon: Tag },
-  { title: "Analytics", url: "/analytics", icon: BarChart3 },
-  { title: "Admin Users", url: "/admin-users", icon: UserCog },
-  { title: "Payments", url: "/payments", icon: CreditCard },
-  { title: "Settings", url: "/settings", icon: Settings },
+  { title: "Dashboard", url: "/management-portal", icon: LayoutDashboard },
+  { title: "Orders", url: "/management-portal/orders", icon: ShoppingCart },
+  { title: "Products", url: "/management-portal/products", icon: Package },
+  { title: "Customers", url: "/management-portal/customers", icon: Users },
+  { title: "Categories", url: "/management-portal/categories", icon: FolderTree },
+  { title: "Inventory", url: "/management-portal/inventory", icon: Boxes },
+  { title: "Promotions", url: "/management-portal/promotions", icon: Tag },
+  { title: "Analytics", url: "/management-portal/analytics", icon: BarChart3 },
+  { title: "Admin Users", url: "/management-portal/admin-users", icon: UserCog },
+  { title: "Payments", url: "/management-portal/payments", icon: CreditCard },
+  { title: "Settings", url: "/management-portal/settings", icon: Settings },
 ];
 
 export function AppSidebar() {
@@ -58,7 +58,7 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink
                       to={item.url}
-                      end={item.url === "/"}
+                      end={item.url === "/management-portal"}
                       className={({ isActive }) =>
                         isActive
                           ? "bg-sidebar-accent text-sidebar-primary font-medium"

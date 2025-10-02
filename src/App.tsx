@@ -38,31 +38,31 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          {/* Admin Routes */}
-          <Route path="/" element={<DashboardLayout><Dashboard /></DashboardLayout>} />
-          <Route path="/orders" element={<DashboardLayout><Orders /></DashboardLayout>} />
-          <Route path="/orders/:id" element={<DashboardLayout><OrderDetail /></DashboardLayout>} />
-          <Route path="/products" element={<DashboardLayout><Products /></DashboardLayout>} />
-          <Route path="/customers" element={<DashboardLayout><Customers /></DashboardLayout>} />
-          <Route path="/categories" element={<DashboardLayout><Categories /></DashboardLayout>} />
-          <Route path="/inventory" element={<DashboardLayout><Inventory /></DashboardLayout>} />
-          <Route path="/promotions" element={<DashboardLayout><Promotions /></DashboardLayout>} />
-          <Route path="/analytics" element={<DashboardLayout><Analytics /></DashboardLayout>} />
-          <Route path="/admin-users" element={<DashboardLayout><AdminUsers /></DashboardLayout>} />
-          <Route path="/payments" element={<DashboardLayout><Payments /></DashboardLayout>} />
-          <Route path="/settings" element={<DashboardLayout><Settings /></DashboardLayout>} />
+          {/* Store Routes - Root Level */}
+          <Route path="/" element={<StoreLayout><StoreHome /></StoreLayout>} />
+          <Route path="/solar-panels" element={<StoreLayout><SolarPanels /></StoreLayout>} />
+          <Route path="/street-lights" element={<StoreLayout><StreetLights /></StoreLayout>} />
+          <Route path="/gadgets" element={<StoreLayout><Gadgets /></StoreLayout>} />
+          <Route path="/product/:id" element={<StoreLayout><ProductDetail /></StoreLayout>} />
+          <Route path="/about" element={<StoreLayout><About /></StoreLayout>} />
+          <Route path="/contact" element={<StoreLayout><Contact /></StoreLayout>} />
+          <Route path="/cart" element={<StoreLayout><Cart /></StoreLayout>} />
+          <Route path="/checkout" element={<StoreLayout><Checkout /></StoreLayout>} />
+          <Route path="/auth" element={<StoreLayout><Auth /></StoreLayout>} />
           
-          {/* Store Routes */}
-          <Route path="/store" element={<StoreLayout><StoreHome /></StoreLayout>} />
-          <Route path="/store/panels" element={<StoreLayout><SolarPanels /></StoreLayout>} />
-          <Route path="/store/street-lights" element={<StoreLayout><StreetLights /></StoreLayout>} />
-          <Route path="/store/gadgets" element={<StoreLayout><Gadgets /></StoreLayout>} />
-          <Route path="/store/product/:id" element={<StoreLayout><ProductDetail /></StoreLayout>} />
-          <Route path="/store/about" element={<StoreLayout><About /></StoreLayout>} />
-          <Route path="/store/contact" element={<StoreLayout><Contact /></StoreLayout>} />
-          <Route path="/store/cart" element={<StoreLayout><Cart /></StoreLayout>} />
-          <Route path="/store/checkout" element={<StoreLayout><Checkout /></StoreLayout>} />
-          <Route path="/store/auth" element={<StoreLayout><Auth /></StoreLayout>} />
+          {/* Admin Routes - Management Portal */}
+          <Route path="/management-portal" element={<DashboardLayout><Dashboard /></DashboardLayout>} />
+          <Route path="/management-portal/orders" element={<DashboardLayout><Orders /></DashboardLayout>} />
+          <Route path="/management-portal/orders/:id" element={<DashboardLayout><OrderDetail /></DashboardLayout>} />
+          <Route path="/management-portal/products" element={<DashboardLayout><Products /></DashboardLayout>} />
+          <Route path="/management-portal/customers" element={<DashboardLayout><Customers /></DashboardLayout>} />
+          <Route path="/management-portal/categories" element={<DashboardLayout><Categories /></DashboardLayout>} />
+          <Route path="/management-portal/inventory" element={<DashboardLayout><Inventory /></DashboardLayout>} />
+          <Route path="/management-portal/promotions" element={<DashboardLayout><Promotions /></DashboardLayout>} />
+          <Route path="/management-portal/analytics" element={<DashboardLayout><Analytics /></DashboardLayout>} />
+          <Route path="/management-portal/admin-users" element={<DashboardLayout><AdminUsers /></DashboardLayout>} />
+          <Route path="/management-portal/payments" element={<DashboardLayout><Payments /></DashboardLayout>} />
+          <Route path="/management-portal/settings" element={<DashboardLayout><Settings /></DashboardLayout>} />
           
           <Route path="*" element={<NotFound />} />
         </Routes>

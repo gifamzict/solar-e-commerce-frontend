@@ -172,7 +172,7 @@ export default function StreetLights() {
                   </div>
                 </div>
                 <CardContent className="p-4">
-                  <Link to={`/store/product/${product.id}`}>
+                  <Link to={`/product/${product.id}`}>
                     <h3 className="font-semibold mb-2 hover:text-primary transition-colors">
                       {product.name}
                     </h3>

@@ -21,7 +21,7 @@ export default function Cart() {
         <ShoppingBag className="h-24 w-24 text-muted-foreground mx-auto mb-4" />
         <h2 className="text-2xl font-bold mb-2">Your Cart is Empty</h2>
         <p className="text-muted-foreground mb-6">Add some solar products to get started!</p>
-        <Link to="/store/panels">
+        <Link to="/solar-panels">
           <Button size="lg" className="solar-glow">
             Shop Solar Panels
           </Button>
@@ -152,13 +152,13 @@ export default function Cart() {
                 </p>
               )}
 
-              <Link to="/store/checkout">
+              <Link to="/checkout">
                 <Button size="lg" className="w-full solar-glow hover-lift">
                   Proceed to Checkout
                 </Button>
               </Link>
 
-              <Link to="/store/panels">
+              <Link to="/solar-panels">
                 <Button variant="outline" size="lg" className="w-full mt-3">
                   Continue Shopping
                 </Button>

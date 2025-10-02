@@ -32,7 +32,7 @@ export default function ProductDetail() {
       image: product.images[0],
       category: 'Solar Panels'
     }, quantity);
-    navigate('/store/checkout');
+    navigate('/checkout');
   };
 
   const product = {

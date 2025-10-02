@@ -28,21 +28,21 @@ export default function Home() {
       title: "Solar Panels",
       description: "Premium solar panels for homes and businesses",
       image: "/placeholder.svg",
-      link: "/store/panels",
+      link: "/solar-panels",
       price: "From ₦450,000"
     },
     {
       title: "Street Lights",
       description: "Energy-efficient solar street lighting solutions",
       image: "/placeholder.svg",
-      link: "/store/street-lights",
+      link: "/street-lights",
       price: "From ₦85,000"
     },
     {
       title: "Solar Gadgets",
       description: "Portable solar chargers, fans, and more",
       image: "/placeholder.svg",
-      link: "/store/gadgets",
+      link: "/gadgets",
       price: "From ₦15,000"
     }
   ];
@@ -78,13 +78,13 @@ export default function Home() {
               Join over 5,000+ Nigerian homes and businesses already saving up to 70% on electricity costs with our cutting-edge solar technology
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-              <Link to="/store/panels">
+              <Link to="/solar-panels">
                 <Button size="lg" className="text-lg px-12 py-6 solar-glow hover-lift">
                   <ShoppingCart className="mr-2 h-5 w-5" />
                   Shop Solar Panels
                 </Button>
               </Link>
-              <Link to="/store/about">
+              <Link to="/about">
                 <Button size="lg" variant="outline" className="text-lg px-12 py-6 bg-white/10 backdrop-blur border-white/20 text-white hover:bg-white/20">
                   Learn More
                 </Button>
@@ -237,7 +237,7 @@ export default function Home() {
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
             Get a free consultation and discover how much you can save with solar energy
           </p>
-          <Link to="/store/contact">
+          <Link to="/contact">
             <Button size="lg" className="text-lg px-12 solar-glow hover-lift">
               Get Free Consultation
             </Button>
