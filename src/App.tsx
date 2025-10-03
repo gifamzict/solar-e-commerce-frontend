@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { DashboardLayout } from "./components/DashboardLayout";
 import { StoreLayout } from "./components/StoreLayout";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
 import Orders from "./pages/Orders";
 import OrderDetail from "./pages/OrderDetail";
@@ -28,6 +29,7 @@ import Contact from "./pages/store/Contact";
 import Cart from "./pages/store/Cart";
 import Checkout from "./pages/store/Checkout";
 import Auth from "./pages/store/Auth";
+import AdminAuth from "./pages/management-portal/AdminAuth";
 
 const queryClient = new QueryClient();
 
@@ -50,19 +52,22 @@ const App = () => (
           <Route path="/checkout" element={<StoreLayout><Checkout /></StoreLayout>} />
           <Route path="/auth" element={<StoreLayout><Auth /></StoreLayout>} />
           
-          {/* Admin Routes - Management Portal */}
-          <Route path="/management-portal" element={<DashboardLayout><Dashboard /></DashboardLayout>} />
-          <Route path="/management-portal/orders" element={<DashboardLayout><Orders /></DashboardLayout>} />
-          <Route path="/management-portal/orders/:id" element={<DashboardLayout><OrderDetail /></DashboardLayout>} />
-          <Route path="/management-portal/products" element={<DashboardLayout><Products /></DashboardLayout>} />
-          <Route path="/management-portal/customers" element={<DashboardLayout><Customers /></DashboardLayout>} />
-          <Route path="/management-portal/categories" element={<DashboardLayout><Categories /></DashboardLayout>} />
-          <Route path="/management-portal/inventory" element={<DashboardLayout><Inventory /></DashboardLayout>} />
-          <Route path="/management-portal/promotions" element={<DashboardLayout><Promotions /></DashboardLayout>} />
-          <Route path="/management-portal/analytics" element={<DashboardLayout><Analytics /></DashboardLayout>} />
-          <Route path="/management-portal/admin-users" element={<DashboardLayout><AdminUsers /></DashboardLayout>} />
-          <Route path="/management-portal/payments" element={<DashboardLayout><Payments /></DashboardLayout>} />
-          <Route path="/management-portal/settings" element={<DashboardLayout><Settings /></DashboardLayout>} />
+          {/* Admin Auth */}
+          <Route path="/management-portal/auth" element={<AdminAuth />} />
+          
+          {/* Admin Routes - Management Portal (Protected) */}
+          <Route path="/management-portal" element={<ProtectedRoute><DashboardLayout><Dashboard /></DashboardLayout></ProtectedRoute>} />
+          <Route path="/management-portal/orders" element={<ProtectedRoute><DashboardLayout><Orders /></DashboardLayout></ProtectedRoute>} />
+          <Route path="/management-portal/orders/:id" element={<ProtectedRoute><DashboardLayout><OrderDetail /></DashboardLayout></ProtectedRoute>} />
+          <Route path="/management-portal/products" element={<ProtectedRoute><DashboardLayout><Products /></DashboardLayout></ProtectedRoute>} />
+          <Route path="/management-portal/customers" element={<ProtectedRoute><DashboardLayout><Customers /></DashboardLayout></ProtectedRoute>} />
+          <Route path="/management-portal/categories" element={<ProtectedRoute><DashboardLayout><Categories /></DashboardLayout></ProtectedRoute>} />
+          <Route path="/management-portal/inventory" element={<ProtectedRoute><DashboardLayout><Inventory /></DashboardLayout></ProtectedRoute>} />
+          <Route path="/management-portal/promotions" element={<ProtectedRoute><DashboardLayout><Promotions /></DashboardLayout></ProtectedRoute>} />
+          <Route path="/management-portal/analytics" element={<ProtectedRoute><DashboardLayout><Analytics /></DashboardLayout></ProtectedRoute>} />
+          <Route path="/management-portal/admin-users" element={<ProtectedRoute><DashboardLayout><AdminUsers /></DashboardLayout></ProtectedRoute>} />
+          <Route path="/management-portal/payments" element={<ProtectedRoute><DashboardLayout><Payments /></DashboardLayout></ProtectedRoute>} />
+          <Route path="/management-portal/settings" element={<ProtectedRoute><DashboardLayout><Settings /></DashboardLayout></ProtectedRoute>} />
           
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -1,14 +1,26 @@
 import { ReactNode } from "react";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
-import { Bell, User } from "lucide-react";
+import { Bell, User, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAdminAuth } from "@/contexts/AdminAuthContext";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 interface DashboardLayoutProps {
   children: ReactNode;
 }
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
+  const { logout } = useAdminAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    toast.success("Logged out successfully");
+    navigate("/management-portal/auth");
+  };
+
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
@@ -25,6 +37,9 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             </Button>
             <Button variant="ghost" size="icon">
               <User className="h-5 w-5" />
+            </Button>
+            <Button variant="ghost" size="icon" onClick={handleLogout} title="Logout">
+              <LogOut className="h-5 w-5" />
             </Button>
           </header>
           <main className="flex-1 p-6 bg-background">
