@@ -219,6 +219,67 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Active Promotions */}
+      <section className="py-20 bg-gradient-to-br from-primary/5 to-accent/10">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12 animate-fade-in">
+            <Badge className="mb-4 px-4 py-1.5 bg-primary/10 text-primary border-primary/20">
+              Limited Time Offers
+            </Badge>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              Active Promotions & Discounts
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Save more on your solar investment with our exclusive deals
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            {[
+              { code: "SOLARPANEL20", discount: "20% OFF", type: "Solar Panels", expires: "Aug 31, 2024" },
+              { code: "NEWSOLAR10", discount: "10% OFF", type: "All Products", expires: "Dec 31, 2024" },
+              { code: "BATTERY50K", discount: "₦50,000 OFF", type: "Batteries", expires: "Jun 30, 2024" },
+            ].map((promo, index) => (
+              <div
+                key={index}
+                className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-white to-primary/5 dark:from-secondary-dark dark:to-primary/10 p-6 border-2 border-primary/20 hover:border-primary/40 transition-all hover-lift"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/20 to-transparent rounded-full blur-3xl"></div>
+                
+                <div className="relative z-10">
+                  <div className="flex items-center justify-between mb-4">
+                    <Badge className="bg-primary text-primary-foreground px-3 py-1">
+                      {promo.type}
+                    </Badge>
+                    <Zap className="h-5 w-5 text-primary animate-pulse" />
+                  </div>
+                  
+                  <div className="mb-4">
+                    <h3 className="text-3xl font-bold text-gradient mb-2">
+                      {promo.discount}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      Use code: <span className="font-mono font-bold text-foreground">{promo.code}</span>
+                    </p>
+                  </div>
+                  
+                  <div className="flex items-center text-sm text-muted-foreground mb-4">
+                    <Clock className="h-4 w-4 mr-2" />
+                    Expires: {promo.expires}
+                  </div>
+                  
+                  <Button className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+                    Shop Now
+                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Features Section */}
       <section className="py-20 solar-gradient-radial">
         <div className="container mx-auto px-4">
