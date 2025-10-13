@@ -8,6 +8,7 @@ interface CartItem {
   quantity: number;
   image: string;
   category: string;
+  meta?: Record<string, any>;
 }
 
 interface CartContextType {
@@ -26,6 +27,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
 
   const addToCart = (item: Omit<CartItem, 'quantity'>, quantity: number) => {
+    // Block unauthenticated users from adding to cart
+    const token = typeof window !== 'undefined' ? localStorage.getItem('store_token') : null;
+    if (!token) {
+      toast({
+        title: 'Login required',
+        description: 'Please login to add items to your cart.',
+      });
+      return;
+    }
+
     setItems(prev => {
       const existingItem = prev.find(i => i.id === item.id);
       

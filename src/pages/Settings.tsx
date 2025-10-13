@@ -1,3 +1,5 @@
+import { useState, useEffect } from "react";
+import axios from "axios";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -5,7 +7,57 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/';
+
 export default function Settings() {
+  const [settings, setSettings] = useState({
+    store_name: "Gifamz Store",
+    contact_email: "contact@gifamz.com",
+    phone_number: "+1 (555) 123-4567",
+    payment_settings: {
+      credit_card: true,
+      paypal: true,
+      cash_on_delivery: false,
+    },
+    shipping_settings: {
+      free_shipping_threshold: 50,
+      standard_rate: 5.99,
+      express_rate: 12.99,
+    },
+    notification_preferences: {
+      order_notifications: true,
+      low_stock_alerts: true,
+      customer_messages: true,
+    },
+  });
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}settings/latest`);
+        setSettings(response.data);
+      } catch (error) {
+        console.error("Error fetching settings:", error);
+      }
+    };
+
+    fetchSettings();
+  }, []);
+
+  const handleSave = async () => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}settings`, settings);
+      alert(response.data.message);
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        alert(error.response.data.message || error.response.statusText);
+      } else {
+        alert("Network error or failed to connect.");
+      }
+    }
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
@@ -22,17 +74,31 @@ export default function Settings() {
           <CardContent className="space-y-4">
             <div className="grid gap-2">
               <Label htmlFor="storeName">Store Name</Label>
-              <Input id="storeName" defaultValue="Gifamz Store" />
+              <Input
+                id="storeName"
+                value={settings.store_name}
+                onChange={(e) => setSettings({ ...settings, store_name: e.target.value })}
+              />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="email">Contact Email</Label>
-              <Input id="email" type="email" defaultValue="contact@gifamz.com" />
+              <Input
+                id="email"
+                type="email"
+                value={settings.contact_email}
+                onChange={(e) => setSettings({ ...settings, contact_email: e.target.value })}
+              />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="phone">Phone Number</Label>
-              <Input id="phone" type="tel" defaultValue="+1 (555) 123-4567" />
+              <Input
+                id="phone"
+                type="tel"
+                value={settings.phone_number}
+                onChange={(e) => setSettings({ ...settings, phone_number: e.target.value })}
+              />
             </div>
-            <Button>Save Changes</Button>
+            <Button onClick={handleSave}>Save Changes</Button>
           </CardContent>
         </Card>
 
@@ -47,7 +113,15 @@ export default function Settings() {
                 <Label>Credit Card Payments</Label>
                 <p className="text-sm text-muted-foreground">Accept credit and debit cards</p>
               </div>
-              <Switch defaultChecked />
+              <Switch
+                checked={settings.payment_settings.credit_card}
+                onCheckedChange={(value) =>
+                  setSettings({
+                    ...settings,
+                    payment_settings: { ...settings.payment_settings, credit_card: value },
+                  })
+                }
+              />
             </div>
             <Separator />
             <div className="flex items-center justify-between">
@@ -55,7 +129,15 @@ export default function Settings() {
                 <Label>PayPal</Label>
                 <p className="text-sm text-muted-foreground">Enable PayPal checkout</p>
               </div>
-              <Switch defaultChecked />
+              <Switch
+                checked={settings.payment_settings.paypal}
+                onCheckedChange={(value) =>
+                  setSettings({
+                    ...settings,
+                    payment_settings: { ...settings.payment_settings, paypal: value },
+                  })
+                }
+              />
             </div>
             <Separator />
             <div className="flex items-center justify-between">
@@ -63,7 +145,15 @@ export default function Settings() {
                 <Label>Cash on Delivery</Label>
                 <p className="text-sm text-muted-foreground">Allow cash payments</p>
               </div>
-              <Switch />
+              <Switch
+                checked={settings.payment_settings.cash_on_delivery}
+                onCheckedChange={(value) =>
+                  setSettings({
+                    ...settings,
+                    payment_settings: { ...settings.payment_settings, cash_on_delivery: value },
+                  })
+                }
+              />
             </div>
           </CardContent>
         </Card>
@@ -76,17 +166,56 @@ export default function Settings() {
           <CardContent className="space-y-4">
             <div className="grid gap-2">
               <Label htmlFor="freeShipping">Free Shipping Threshold</Label>
-              <Input id="freeShipping" type="number" defaultValue="50" />
+              <Input
+                id="freeShipping"
+                type="number"
+                value={settings.shipping_settings.free_shipping_threshold}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    shipping_settings: {
+                      ...settings.shipping_settings,
+                      free_shipping_threshold: parseFloat(e.target.value),
+                    },
+                  })
+                }
+              />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="standardRate">Standard Shipping Rate</Label>
-              <Input id="standardRate" type="number" defaultValue="5.99" />
+              <Input
+                id="standardRate"
+                type="number"
+                value={settings.shipping_settings.standard_rate}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    shipping_settings: {
+                      ...settings.shipping_settings,
+                      standard_rate: parseFloat(e.target.value),
+                    },
+                  })
+                }
+              />
             </div>
             <div className="grid gap-2">
               <Label htmlFor="expressRate">Express Shipping Rate</Label>
-              <Input id="expressRate" type="number" defaultValue="12.99" />
+              <Input
+                id="expressRate"
+                type="number"
+                value={settings.shipping_settings.express_rate}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    shipping_settings: {
+                      ...settings.shipping_settings,
+                      express_rate: parseFloat(e.target.value),
+                    },
+                  })
+                }
+              />
             </div>
-            <Button>Save Changes</Button>
+            <Button onClick={handleSave}>Save Changes</Button>
           </CardContent>
         </Card>
 
@@ -101,7 +230,18 @@ export default function Settings() {
                 <Label>Order Notifications</Label>
                 <p className="text-sm text-muted-foreground">Get notified about new orders</p>
               </div>
-              <Switch defaultChecked />
+              <Switch
+                checked={settings.notification_preferences.order_notifications}
+                onCheckedChange={(value) =>
+                  setSettings({
+                    ...settings,
+                    notification_preferences: {
+                      ...settings.notification_preferences,
+                      order_notifications: value,
+                    },
+                  })
+                }
+              />
             </div>
             <Separator />
             <div className="flex items-center justify-between">
@@ -109,7 +249,18 @@ export default function Settings() {
                 <Label>Low Stock Alerts</Label>
                 <p className="text-sm text-muted-foreground">Receive alerts for low inventory</p>
               </div>
-              <Switch defaultChecked />
+              <Switch
+                checked={settings.notification_preferences.low_stock_alerts}
+                onCheckedChange={(value) =>
+                  setSettings({
+                    ...settings,
+                    notification_preferences: {
+                      ...settings.notification_preferences,
+                      low_stock_alerts: value,
+                    },
+                  })
+                }
+              />
             </div>
             <Separator />
             <div className="flex items-center justify-between">
@@ -117,7 +268,18 @@ export default function Settings() {
                 <Label>Customer Messages</Label>
                 <p className="text-sm text-muted-foreground">Get notified about customer inquiries</p>
               </div>
-              <Switch defaultChecked />
+              <Switch
+                checked={settings.notification_preferences.customer_messages}
+                onCheckedChange={(value) =>
+                  setSettings({
+                    ...settings,
+                    notification_preferences: {
+                      ...settings.notification_preferences,
+                      customer_messages: value,
+                    },
+                  })
+                }
+              />
             </div>
           </CardContent>
         </Card>

@@ -12,6 +12,9 @@ import {
   CreditCard,
   Settings,
   Store,
+  CalendarClock,
+  CalendarCheck2,
+  Bell,
 } from "lucide-react";
 import {
   Sidebar,
@@ -28,14 +31,17 @@ import {
 const menuItems = [
   { title: "Dashboard", url: "/management-portal", icon: LayoutDashboard },
   { title: "Orders", url: "/management-portal/orders", icon: ShoppingCart },
-  { title: "Products", url: "/management-portal/products", icon: Package },
-  { title: "Customers", url: "/management-portal/customers", icon: Users },
   { title: "Categories", url: "/management-portal/categories", icon: FolderTree },
+  { title: "Products", url: "/management-portal/products", icon: Package },
+  { title: "Pre-orders", url: "/management-portal/preorders", icon: CalendarClock },
+  { title: "Customer Pre-orders", url: "/management-portal/customer-preorders", icon: CalendarCheck2 },
+  { title: "Customers", url: "/management-portal/customers", icon: Users },
   { title: "Inventory", url: "/management-portal/inventory", icon: Boxes },
   { title: "Promotions", url: "/management-portal/promotions", icon: Tag },
   { title: "Analytics", url: "/management-portal/analytics", icon: BarChart3 },
   { title: "Admin Users", url: "/management-portal/admin-users", icon: UserCog },
   { title: "Payments", url: "/management-portal/payments", icon: CreditCard },
+  { title: "Notifications", url: "/management-portal/notifications", icon: Bell },
   { title: "Settings", url: "/management-portal/settings", icon: Settings },
 ];
 

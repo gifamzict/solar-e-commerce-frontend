@@ -91,7 +91,7 @@ export default function About() {
           </h2>
           <div className="prose prose-lg max-w-none text-muted-foreground space-y-4">
             <p>
-              Founded in 2013, SolarGlow Tech began with a simple vision: to bring reliable, affordable solar energy 
+              Founded in 2023, G-Tech began with a simple vision: to bring reliable, affordable solar energy 
               to Nigerian homes and businesses. What started as a small operation with just three employees has grown 
               into one of Nigeria's leading solar energy providers.
             </p>
@@ -110,7 +110,7 @@ export default function About() {
       </section>
 
       {/* Team */}
-      <section className="py-20 bg-muted/30">
+      {/* <section className="py-20 bg-muted/30">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-12">
             Meet Our <span className="text-primary">Team</span>
@@ -133,7 +133,7 @@ export default function About() {
             ))}
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Sustainability */}
       <section className="py-20 container mx-auto px-4">

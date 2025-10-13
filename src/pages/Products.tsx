@@ -29,32 +29,93 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Search, Plus, Edit, Trash2, Upload } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import axios from "axios";
+import { AddProductDialog } from "@/components/AddProductDialog";
+import { EditProductDialog } from "@/components/EditProductDialog";
+import { ensureNairaSymbol } from "@/lib/utils";
 
-const products = [
-  { id: 1, name: "300W Monocrystalline Solar Panel", category: "Solar Panels", price: "₦450,000", stock: 45, status: "Active", sales: 234 },
-  { id: 2, name: "Solar Battery 200Ah", category: "Solar Batteries", price: "₦280,000", stock: 23, status: "Active", sales: 187 },
-  { id: 3, name: "Solar Street Light 100W", category: "Street Lights", price: "₦125,000", stock: 12, status: "Low Stock", sales: 156 },
-  { id: 4, name: "5KVA Solar Inverter", category: "Solar Inverters", price: "₦650,000", stock: 8, status: "Low Stock", sales: 143 },
-  { id: 5, name: "Solar Charge Controller 60A", category: "Accessories", price: "₦85,000", stock: 67, status: "Active", sales: 132 },
-  { id: 6, name: "Portable Solar Charger", category: "Gadgets", price: "₦45,000", stock: 89, status: "Active", sales: 121 },
-  { id: 7, name: "Solar Water Pump", category: "Solar Pumps", price: "₦320,000", stock: 0, status: "Out of Stock", sales: 98 },
-  { id: 8, name: "Solar Security Light", category: "Security", price: "₦75,000", stock: 34, status: "Active", sales: 87 },
-];
+// Define the base URL from environment variables
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api') + '/';
 
+// API functions
+const fetchProducts = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}products`);
+    const data = response.data.products || response.data.data || response.data;
+    return Array.isArray(data) ? data : [];
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.message || error.response.statusText);
+    }
+    throw new Error("Network error or failed to connect.");
+  }
+};
+
+const deleteProduct = async (id: number) => {
+  try {
+    const response = await axios.delete(`${API_BASE_URL}products/${id}`);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.message || error.response.statusText);
+    }
+    throw new Error("Network error or failed to connect.");
+  }
+};
+
+// Define status colors for badges
 const statusColors = {
-  Active: "bg-success text-success-foreground",
-  "Low Stock": "bg-warning text-warning-foreground",
-  "Out of Stock": "bg-destructive text-destructive-foreground",
+  Active: "bg-green-500 text-white",
+  "Low Stock": "bg-yellow-500 text-white",
+  "Out of Stock": "bg-red-500 text-white",
 };
 
 export default function Products() {
+  const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<any>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
-  const filteredProducts = products.filter(product =>
+  const { data: products, isLoading, error } = useQuery({
+    queryKey: ['products'],
+    queryFn: fetchProducts,
+  });
+
+  const deleteProductMutation = useMutation({
+    mutationFn: deleteProduct,
+    onSuccess: () => {
+      toast.success("Product deleted successfully!");
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to delete product.");
+    },
+  });
+
+  const filteredProducts = products?.filter(product =>
     product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     product.category.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  ) || [];
+
+  const handleDelete = (id: number) => {
+    deleteProductMutation.mutate(id);
+  };
+
+  const handleEdit = (product: any) => {
+    setEditingProduct(product);
+    setIsEditDialogOpen(true);
+  };
+
+  if (isLoading) {
+    return <div className="flex justify-center items-center h-64">Loading products...</div>;
+  }
+
+  if (error) {
+    return <div className="text-center text-red-500">Error loading products: {error.message}</div>;
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -63,108 +124,10 @@ export default function Products() {
           <h1 className="text-3xl font-bold tracking-tight">Products Management</h1>
           <p className="text-muted-foreground mt-1">Manage your solar product catalog</p>
         </div>
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="gap-2">
-              <Plus className="h-4 w-4" />
-              Add Product
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Add New Solar Product</DialogTitle>
-              <DialogDescription>
-                Fill in the product details to add it to your catalog
-              </DialogDescription>
-            </DialogHeader>
-            <form className="space-y-4 mt-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Product Name *</Label>
-                  <Input id="name" placeholder="e.g., 300W Solar Panel" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="category">Category *</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="panels">Solar Panels</SelectItem>
-                      <SelectItem value="batteries">Solar Batteries</SelectItem>
-                      <SelectItem value="inverters">Solar Inverters</SelectItem>
-                      <SelectItem value="lights">Street Lights</SelectItem>
-                      <SelectItem value="gadgets">Gadgets</SelectItem>
-                      <SelectItem value="accessories">Accessories</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="price">Price (₦) *</Label>
-                  <Input id="price" type="number" placeholder="450000" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="stock">Stock Quantity *</Label>
-                  <Input id="stock" type="number" placeholder="50" />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="description">Description *</Label>
-                <Textarea 
-                  id="description" 
-                  placeholder="Detailed product description..."
-                  rows={4}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="power">Power Output</Label>
-                  <Input id="power" placeholder="e.g., 300W" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="warranty">Warranty Period</Label>
-                  <Input id="warranty" placeholder="e.g., 10 years" />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="specs">Specifications</Label>
-                <Textarea 
-                  id="specs" 
-                  placeholder="Key specifications (one per line)"
-                  rows={4}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="images">Product Images</Label>
-                <div className="border-2 border-dashed rounded-md p-6 text-center hover:border-primary transition-colors cursor-pointer">
-                  <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
-                  <p className="text-sm text-muted-foreground">
-                    Click to upload or drag and drop
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    PNG, JPG up to 5MB (Max 5 images)
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-3 pt-4">
-                <Button type="button" variant="outline" onClick={() => setIsAddDialogOpen(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit">
-                  Add Product
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
+        <Button onClick={() => setIsAddDialogOpen(true)}>
+          <Plus className="h-4 w-4 mr-2" />
+          Add Product
+        </Button>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4">
@@ -197,34 +160,48 @@ export default function Products() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredProducts.map((product) => (
-                <TableRow key={product.id} className="hover:bg-muted/50 transition-colors">
-                  <TableCell className="font-medium">{product.name}</TableCell>
-                  <TableCell className="text-muted-foreground">{product.category}</TableCell>
-                  <TableCell className="font-semibold">{product.price}</TableCell>
-                  <TableCell>{product.stock}</TableCell>
-                  <TableCell className="text-muted-foreground">{product.sales}</TableCell>
-                  <TableCell>
-                    <Badge className={statusColors[product.status as keyof typeof statusColors]}>
-                      {product.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button variant="ghost" size="icon">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon">
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {filteredProducts.map((product) => {
+                const categoryName = typeof product.category === 'object' ? product.category?.name : product.category;
+                const formattedPrice = typeof product.price === 'number' ? `₦${product.price.toLocaleString()}` : ensureNairaSymbol(product.price);
+                const status = product.stock > 10 ? 'Active' : product.stock > 0 ? 'Low Stock' : 'Out of Stock';
+                const sales = product.sales || '-';
+                return (
+                  <TableRow key={product.id} className="hover:bg-muted/50 transition-colors">
+                    <TableCell className="font-medium">{product.name}</TableCell>
+                    <TableCell className="text-muted-foreground">{categoryName}</TableCell>
+                    <TableCell className="font-semibold">{formattedPrice}</TableCell>
+                    <TableCell>{product.stock}</TableCell>
+                    <TableCell className="text-muted-foreground">{sales}</TableCell>
+                    <TableCell>
+                      <Badge className={statusColors[status as keyof typeof statusColors]}>
+                        {status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button variant="ghost" size="icon" onClick={() => handleEdit(product)}>
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => handleDelete(product.id)}>
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </CardContent>
       </Card>
+
+      <AddProductDialog isOpen={isAddDialogOpen} onOpenChange={setIsAddDialogOpen} />
+
+      <EditProductDialog
+        product={editingProduct}
+        isOpen={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+      />
     </div>
   );
 }

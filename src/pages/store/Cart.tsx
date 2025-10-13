@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/contexts/CartContext";
 import { Minus, Plus, X, ShoppingBag } from "lucide-react";
+import { getImageUrl } from "@/lib/utils";
 
 export default function Cart() {
   const { items, updateQuantity, removeFromCart, cartTotal } = useCart();
@@ -43,7 +44,15 @@ export default function Cart() {
                 <div className="flex gap-4">
                   {/* Image */}
                   <div className="w-24 h-24 flex-shrink-0 bg-gradient-to-br from-primary/10 to-accent/10 rounded-md overflow-hidden">
-                    <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                    <img 
+                      src={getImageUrl(item.image)} 
+                      alt={item.name} 
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = '/placeholder.svg';
+                      }}
+                    />
                   </div>
 
                   {/* Details */}

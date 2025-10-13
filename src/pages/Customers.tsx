@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,18 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Search, Eye, Mail } from "lucide-react";
-
-const customers = [
-  { id: 1, name: "John Doe", email: "john@example.com", orders: 15, spent: "$2,345", joined: "2023-06-15", status: "Active" },
-  { id: 2, name: "Jane Smith", email: "jane@example.com", orders: 23, spent: "$4,567", joined: "2023-05-10", status: "Active" },
-  { id: 3, name: "Mike Johnson", email: "mike@example.com", orders: 8, spent: "$1,234", joined: "2023-08-20", status: "Active" },
-  { id: 4, name: "Sarah Williams", email: "sarah@example.com", orders: 31, spent: "$6,789", joined: "2023-03-05", status: "VIP" },
-  { id: 5, name: "Tom Brown", email: "tom@example.com", orders: 12, spent: "$2,890", joined: "2023-07-12", status: "Active" },
-  { id: 6, name: "Emily Davis", email: "emily@example.com", orders: 5, spent: "$890", joined: "2023-11-01", status: "New" },
-  { id: 7, name: "Chris Wilson", email: "chris@example.com", orders: 19, spent: "$3,456", joined: "2023-04-18", status: "Active" },
-  { id: 8, name: "Anna Martinez", email: "anna@example.com", orders: 0, spent: "$0", joined: "2024-01-15", status: "Inactive" },
-];
+import { Search, Eye, Mail, MoreHorizontal, UserPlus } from "lucide-react";
 
 const statusColors = {
   Active: "bg-success text-success-foreground",
@@ -34,8 +24,31 @@ const statusColors = {
 
 export default function Customers() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [customersData, setCustomersData] = useState({
+    total_customers: 0,
+    active_customers: 0,
+    vip_customers: 0,
+    new_this_month: 0,
+    customers: [],
+  });
 
-  const filteredCustomers = customers.filter(customer =>
+  // Define the base URL from environment variables
+  const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api') + '/';
+
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}customers`);
+        setCustomersData(response.data);
+      } catch (error) {
+        console.error("Error fetching customers:", error);
+      }
+    };
+
+    fetchCustomers();
+  }, []);
+
+  const filteredCustomers = customersData.customers.filter((customer) =>
     customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     customer.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -53,7 +66,7 @@ export default function Customers() {
             <CardTitle className="text-sm font-medium">Total Customers</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{customers.length}</div>
+            <div className="text-2xl font-bold">{customersData.total_customers}</div>
           </CardContent>
         </Card>
         <Card>
@@ -61,7 +74,7 @@ export default function Customers() {
             <CardTitle className="text-sm font-medium">Active</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{customers.filter(c => c.status === "Active").length}</div>
+            <div className="text-2xl font-bold">{customersData.active_customers}</div>
           </CardContent>
         </Card>
         <Card>
@@ -69,7 +82,7 @@ export default function Customers() {
             <CardTitle className="text-sm font-medium">VIP</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{customers.filter(c => c.status === "VIP").length}</div>
+            <div className="text-2xl font-bold">{customersData.vip_customers}</div>
           </CardContent>
         </Card>
         <Card>
@@ -77,7 +90,7 @@ export default function Customers() {
             <CardTitle className="text-sm font-medium">New This Month</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{customers.filter(c => c.status === "New").length}</div>
+            <div className="text-2xl font-bold">{customersData.new_this_month}</div>
           </CardContent>
         </Card>
       </div>
@@ -102,10 +115,7 @@ export default function Customers() {
               <TableRow>
                 <TableHead>Customer</TableHead>
                 <TableHead>Email</TableHead>
-                <TableHead>Orders</TableHead>
-                <TableHead>Total Spent</TableHead>
                 <TableHead>Joined</TableHead>
-                <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -115,19 +125,14 @@ export default function Customers() {
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <Avatar>
-                        <AvatarFallback>{customer.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                        <AvatarFallback>{customer.name.split(" ").map((n) => n[0]).join("")}</AvatarFallback>
                       </Avatar>
                       <span className="font-medium">{customer.name}</span>
                     </div>
                   </TableCell>
                   <TableCell className="text-muted-foreground">{customer.email}</TableCell>
-                  <TableCell>{customer.orders}</TableCell>
-                  <TableCell className="font-semibold">{customer.spent}</TableCell>
-                  <TableCell className="text-muted-foreground">{customer.joined}</TableCell>
-                  <TableCell>
-                    <Badge className={statusColors[customer.status as keyof typeof statusColors]}>
-                      {customer.status}
-                    </Badge>
+                  <TableCell className="text-muted-foreground">
+                    {new Date(customer.created_at).toLocaleDateString()}
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
