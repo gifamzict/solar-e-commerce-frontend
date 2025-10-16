@@ -7,9 +7,10 @@ import type { AdminCustomerPreorderItem, CpoStatus } from '@/services/admin-cust
 import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
 import { getPreorder } from '@/services/preorder';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import NotifyCustomerDialog from "./NotifyCustomerDialog";
 
 function formatCurrency(value: number | string, currency = 'NGN') {
   const num = typeof value === 'number' ? value : Number(String(value).replace(/[^0-9.-]/g, ''));
@@ -41,6 +42,9 @@ export default function CustomerPreorderDetailDialog({ open, onOpenChange, item,
   if (!item) return null;
 
   const printableRef = useRef<HTMLDivElement | null>(null);
+
+  // New: notify customer dialog state
+  const [isNotifyOpen, setIsNotifyOpen] = useState(false);
 
   const { data: pre } = useQuery({
     queryKey: ['preorder', item.pre_order_id],
@@ -133,9 +137,14 @@ export default function CustomerPreorderDetailDialog({ open, onOpenChange, item,
         </DialogHeader>
 
         <div className="flex justify-end mb-3">
-          <Button variant="outline" size="sm" onClick={handleDownloadPdf}>
-            Download PDF
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={handleDownloadPdf}>
+              Download PDF
+            </Button>
+            <Button size="sm" onClick={() => setIsNotifyOpen(true)}>
+              Notify customer
+            </Button>
+          </div>
         </div>
 
         <div ref={printableRef} className="space-y-6">
@@ -379,6 +388,9 @@ export default function CustomerPreorderDetailDialog({ open, onOpenChange, item,
             </div>
           )}
         </div>
+
+        {/* New: per-customer notification dialog */}
+        <NotifyCustomerDialog open={isNotifyOpen} onOpenChange={setIsNotifyOpen} item={item} />
       </DialogContent>
     </Dialog>
   );

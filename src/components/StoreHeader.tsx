@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { ShoppingCart, User, Menu, X, Sun, Settings, LogOut, ChevronDown, Package } from "lucide-react";
+import { ShoppingCart, User, Menu, X, Sun, LogOut, ChevronDown, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { useStoreAuth } from "@/contexts/StoreAuthContext";
@@ -178,12 +178,6 @@ export function StoreHeader() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link to="/settings" className="flex items-center gap-2">
-                      <Settings className="h-4 w-4" />
-                      Settings
-                    </Link>
-                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={logout} className="flex items-center gap-2 text-red-600">
                     <LogOut className="h-4 w-4" />
                     Logout

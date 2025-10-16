@@ -110,3 +110,42 @@ export function apiJoin(...parts: string[]): string {
   });
   return cleaned.join('/');
 }
+
+// YouTube helpers
+export function extractYouTubeId(input?: string | null): string | null {
+  if (!input) return null;
+  const str = String(input);
+  // Matches youtu.be/ID
+  let m = str.match(/(?:youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  if (m) return m[1];
+  // Matches youtube.com/watch?v=ID
+  m = str.match(/[?&]v=([a-zA-Z0-9_-]{11})/);
+  if (m) return m[1];
+  // Matches youtube.com/embed/ID
+  m = str.match(/(?:youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
+  if (m) return m[1];
+  return null;
+}
+
+export function getYouTubeEmbedUrl(input?: string | null): string | null {
+  const id = extractYouTubeId(input);
+  return id ? `https://www.youtube.com/embed/${id}` : null;
+}
+
+export function getYouTubeThumbnailUrl(input?: string | null, quality: 'default' | 'mq' | 'hq' = 'hq'): string {
+  const id = extractYouTubeId(input);
+  if (!id) return '/placeholder.svg';
+  const map = { default: 'default.jpg', mq: 'mqdefault.jpg', hq: 'hqdefault.jpg' } as const;
+  const file = map[quality] || map.hq;
+  return `https://img.youtube.com/vi/${id}/${file}`;
+}
+
+
+
+
+
+
+
+
+
+

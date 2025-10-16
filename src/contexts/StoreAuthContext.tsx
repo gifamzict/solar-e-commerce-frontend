@@ -9,14 +9,24 @@ interface StoreAuthContextType {
 const StoreAuthContext = createContext<StoreAuthContextType | undefined>(undefined);
 
 export function StoreAuthProvider({ children }: { children: ReactNode }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  useEffect(() => {
-    // Check token on mount
-    const token = localStorage.getItem("store_token");
-    if (token) {
-      setIsAuthenticated(true);
+  // Initialize synchronously from localStorage to avoid redirect flicker on refresh
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    try {
+      return !!localStorage.getItem("store_token");
+    } catch {
+      return false;
     }
+  });
+
+  // Sync auth state across tabs/windows
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === "store_token") {
+        setIsAuthenticated(!!e.newValue);
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
   }, []);
 
   const login = (token: string) => {

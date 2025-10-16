@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { getImageUrls, ensureNairaSymbol } from "@/lib/utils";
 import { CalendarDays, Coins, Package2 } from "lucide-react";
 import { updatePreorderStatus as updatePreorderStatusService } from "@/services/preorder";
+import { useState } from "react";
 
 interface PreorderItem {
   id: number;
@@ -162,7 +163,7 @@ export function PreorderDetailDialog({ preorder, isOpen, onOpenChange, onRequest
               ))}
             </div>
 
-            <div className="flex gap-2 pt-4">
+            <div className="flex flex-wrap gap-2 pt-4">
               <Button variant="outline" onClick={toggleStatus} disabled={statusMutation.isPending}>
                 {status === 'Closed' ? 'Reopen Pre-order' : 'Close Pre-order'}
               </Button>

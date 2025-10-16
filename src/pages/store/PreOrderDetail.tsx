@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { getAvailablePreorder } from "@/services/customer-preorder";
-import { getImageUrls } from "@/lib/utils";
+import { getImageUrls, getYouTubeEmbedUrl, getYouTubeThumbnailUrl } from "@/lib/utils";
 import { useCart } from "@/contexts/CartContext";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +27,16 @@ export default function PreOrderDetail() {
   });
 
   const images = getImageUrls(item?.images || item?.image_urls);
+  const videoEmbed = getYouTubeEmbedUrl((item as any)?.video_url);
+
+  type GalleryItem = { type: 'video'; src: string } | { type: 'image'; src: string };
+  const gallery: GalleryItem[] = [
+    ...(videoEmbed ? [{ type: 'video', src: videoEmbed }] as GalleryItem[] : []),
+    ...images.map((src) => ({ type: 'image', src }) as GalleryItem),
+  ];
+  const current = gallery[selectedImage];
+  const firstImageForCart = images[0] || '/placeholder.svg';
+
   const price = Number(item?.preorder_price ?? 0);
   const depositPct = item?.deposit_percentage != null ? Number(item.deposit_percentage) : null;
   const depositAmt = item?.deposit_amount != null ? Number(item.deposit_amount) : (depositPct != null && price ? Math.round((depositPct / 100) * price) : null);
@@ -43,7 +53,7 @@ export default function PreOrderDetail() {
       id: `preorder-${item.id}`,
       name: item.name || item.product_name || 'Pre-order',
       price: payAmount,
-      image: images[0] || '/placeholder.svg',
+      image: firstImageForCart,
       category: 'Pre-order',
       meta: {
         preOrderId: item.id,
@@ -61,33 +71,59 @@ export default function PreOrderDetail() {
   return (
     <div className="container mx-auto px-4 py-8 animate-fade-in">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-12">
-        {/* Images */}
+        {/* Media */}
         <div>
           <Card className="mb-4 overflow-hidden">
             <div className="aspect-square bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center">
-              <img
-                src={images[selectedImage]}
-                alt={item.name || item.product_name}
-                className="w-full h-full object-cover"
-                onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }}
-              />
+              {current?.type === 'video' ? (
+                <iframe
+                  className="w-full h-full"
+                  src={`${current.src}?rel=0`}
+                  title={item?.name || item?.product_name || 'Pre-order'}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                />
+              ) : (
+                <img
+                  src={(current as any)?.src}
+                  alt={item?.name || item?.product_name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }}
+                />
+              )}
             </div>
           </Card>
-          {images.length > 1 && (
+          {gallery.length > 1 && (
             <div className="grid grid-cols-4 gap-2">
-              {images.map((img, index) => (
+              {gallery.map((g, index) => (
                 <Card
                   key={index}
                   className={`cursor-pointer overflow-hidden ${selectedImage === index ? 'ring-2 ring-primary' : ''}`}
                   onClick={() => setSelectedImage(index)}
                 >
-                  <div className="aspect-square bg-gradient-to-br from-primary/10 to-accent/10">
-                    <img 
-                      src={img} 
-                      alt={`View ${index + 1}`} 
-                      className="w-full h-full object-cover"
-                      onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }}
-                    />
+                  <div className="aspect-square relative bg-gradient-to-br from-primary/10 to-accent/10">
+                    {g.type === 'video' ? (
+                      <img
+                        src={getYouTubeThumbnailUrl((item as any)?.video_url, 'hq')}
+                        alt={`Video`}
+                        className="w-full h-full object-cover"
+                        onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }}
+                      />
+                    ) : (
+                      <img 
+                        src={(g as any).src} 
+                        alt={`View ${index + 1}`} 
+                        className="w-full h-full object-cover"
+                        onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }}
+                      />
+                    )}
+                    {g.type === 'video' && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                        <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
+                          <svg viewBox="0 0 24 24" className="w-4 h-4 text-black fill-current"><path d="M8 5v14l11-7z"/></svg>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </Card>
               ))}

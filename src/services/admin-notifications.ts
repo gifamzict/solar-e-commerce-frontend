@@ -69,10 +69,17 @@ function normalizePagination(resData: any): PaginatedNotifications['pagination']
 
 export const getUnreadCount = async (): Promise<{ count: number }> => {
   const url = apiUrl('/admin/notifications/unread-count');
-  const res = await axios.get(url);
-  const data = res.data;
-  const count = data?.data?.count ?? data?.count ?? 0;
-  return { count: Number(count) || 0 };
+  try {
+    const res = await axios.get(url);
+    const data = res.data;
+    const count = data?.data?.count ?? data?.count ?? 0;
+    return { count: Number(count) || 0 };
+  } catch (e: any) {
+    if (import.meta.env.DEV) {
+      console.warn('Unread count failed:', e?.response?.status, e?.response?.data || e?.message);
+    }
+    return { count: 0 };
+  }
 };
 
 export const getRecentNotifications = async (limit = 5): Promise<AdminNotification[]> => {

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { usePaystackPayment } from 'react-paystack';
 import { Card, CardContent } from "@/components/ui/card";
@@ -7,11 +7,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
-import { Check, Loader2 } from "lucide-react";
+import { Check, Loader2, RotateCw } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { paymentService, type CheckoutData } from "@/services/payment";
 import { toast } from "sonner";
 import { initializeCustomerPreorderPaymentSession, verifyCustomerPreorderPaymentAndCreate } from "@/services/customer-preorder";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { addSavedAddress, listSavedAddresses, type SavedAddress } from "@/services/address-book";
+import { listCustomerAddresses, createCustomerAddress } from "@/services/customer-address";
+import { useStoreAuth } from "@/contexts/StoreAuthContext";
+import { useQuery } from "@tanstack/react-query";
+import { fetchActivePickupLocations, type PickupLocation } from "@/services/pickup-location";
 
 interface PaystackConfig {
   reference: string;
@@ -27,6 +34,7 @@ interface PaystackConfig {
 export default function Checkout() {
   const navigate = useNavigate();
   const { items, cartTotal, clearCart } = useCart();
+  const { isAuthenticated } = useStoreAuth();
   const preorderItems = items.filter(i => i.id.startsWith('preorder-'));
   // Consider deposit available only if a positive deposit per unit is defined
   const firstPreorder = preorderItems[0];
@@ -46,6 +54,96 @@ export default function Checkout() {
     state: '',
     pickupLocation: '',
   });
+
+  // Address book state
+  type AddressOption = SavedAddress & { is_default?: boolean };
+  const [savedAddresses, setSavedAddresses] = useState<AddressOption[]>([]);
+  const [addressesLoading, setAddressesLoading] = useState<boolean>(false);
+  const [selectedAddressId, setSelectedAddressId] = useState<string>("__new__");
+  const [saveAddress, setSaveAddress] = useState<boolean>(false);
+  const [addressLabel, setAddressLabel] = useState<string>("");
+
+  const loadAddresses = async () => {
+    setAddressesLoading(true);
+    try {
+      let serverList: AddressOption[] = [];
+      try {
+        const res = await listCustomerAddresses();
+        const list = Array.isArray(res) ? res : (res?.data ?? []);
+        serverList = (list || []).map((a: any) => ({
+          id: String(a.id ?? `srv_${Math.random().toString(36).slice(2)}`),
+          label: a.label || undefined,
+          first_name: a.first_name || a.firstName || '',
+          last_name: a.last_name || a.lastName || '',
+          email: a.email || '',
+          phone: a.phone || a.phone_number || a.mobile || '',
+          address: a.address || a.address_line1 || a.address_line_1 || a.street || a.address1 || a.line1 || a.line_1 || '',
+          city: a.city || a.city_name || a.town || a.locality || '',
+          state: a.state || a.state_name || a.state_code || a.region || a.region_name || a.province || a.county || '',
+          created_at: a.created_at || new Date().toISOString(),
+          is_default: Boolean(a.is_default || a.default),
+        }));
+      } catch (_e) {}
+      const localList = listSavedAddresses();
+
+      const keyOf = (x: AddressOption) => `${x.label || ''}|${x.address}|${x.city}|${x.state}`.toLowerCase();
+      const mergedMap = new Map<string, AddressOption>();
+      [...serverList, ...localList].forEach((a) => {
+        mergedMap.set(keyOf(a as any), { ...(a as any) });
+      });
+      const merged = Array.from(mergedMap.values());
+
+      merged.sort((a, b) => Number(Boolean(b.is_default)) - Number(Boolean(a.is_default)));
+
+      setSavedAddresses(merged as AddressOption[]);
+      const def = merged.find(a => a.is_default);
+      if (def) setSelectedAddressId(String(def.id));
+      else if (merged.length > 0) setSelectedAddressId(String(merged[0].id));
+    } finally {
+      setAddressesLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      await loadAddresses();
+    })();
+    return () => { mounted = false; };
+  }, []);
+
+  useEffect(() => {
+    if (selectedAddressId === "__new__") return;
+    const addr = savedAddresses.find(a => a.id === selectedAddressId);
+    if (addr) {
+      setFormData(prev => ({
+        ...prev,
+        firstName: addr.first_name,
+        lastName: addr.last_name,
+        email: addr.email,
+        phone: addr.phone,
+        address: addr.address,
+        city: addr.city,
+        state: addr.state,
+      }));
+      setFulfillmentMethod('delivery');
+    }
+  }, [selectedAddressId, savedAddresses]);
+
+  // Load active pickup locations for pickup fulfillment
+  const { data: pickupLocations, isLoading: loadingPickupLocations } = useQuery<PickupLocation[]>({
+    queryKey: ["pickup-locations-active"],
+    queryFn: fetchActivePickupLocations,
+  });
+
+  // Preselect default pickup location when switching to pickup or on load
+  useEffect(() => {
+    if (fulfillmentMethod !== 'pickup') return;
+    if (!pickupLocations || pickupLocations.length === 0) return;
+    if (formData.pickupLocation) return;
+    const def = pickupLocations.find(l => l.is_default) || pickupLocations[0];
+    if (def?.name) setFormData(prev => ({ ...prev, pickupLocation: def.name }));
+  }, [fulfillmentMethod, pickupLocations, formData.pickupLocation]);
 
   const steps = ["Contact", "Fulfillment", "Payment"];
 
@@ -274,6 +372,74 @@ export default function Checkout() {
 
   const handleFulfillmentMethodChange = (value: 'delivery' | 'pickup') => {
     setFulfillmentMethod(value);
+    if (value === 'pickup') {
+      setSelectedAddressId('__new__');
+      setSaveAddress(false);
+    }
+  };
+
+  const handleContinue = async () => {
+    if (currentStep === 2 && fulfillmentMethod === 'delivery') {
+      // Optionally save address before proceeding
+      if (saveAddress) {
+        if (!formData.address || !formData.city || !formData.state || !formData.firstName || !formData.lastName || !formData.email || !formData.phone) {
+          toast.error('Please complete contact and address fields to save this address');
+          return;
+        }
+        try {
+          if (isAuthenticated) {
+            const payload = {
+              label: addressLabel || undefined,
+              first_name: formData.firstName,
+              last_name: formData.lastName,
+              email: formData.email,
+              phone: formData.phone,
+              address: formData.address,
+              city: formData.city,
+              state: formData.state,
+            };
+            const createdRes: any = await createCustomerAddress(payload as any);
+            const rec = createdRes?.data ?? createdRes;
+            const created: AddressOption = {
+              id: String(rec.id),
+              label: rec.label || payload.label,
+              first_name: rec.first_name || payload.first_name!,
+              last_name: rec.last_name || payload.last_name!,
+              email: rec.email || payload.email!,
+              phone: rec.phone || payload.phone!,
+              address: rec.address || payload.address!,
+              city: rec.city || payload.city!,
+              state: rec.state || payload.state!,
+              created_at: rec.created_at || new Date().toISOString(),
+              is_default: Boolean(rec.is_default),
+            };
+            setSavedAddresses(prev => [created, ...prev]);
+            setSelectedAddressId(created.id);
+          } else {
+            const created = addSavedAddress({
+              label: addressLabel || undefined,
+              first_name: formData.firstName,
+              last_name: formData.lastName,
+              email: formData.email,
+              phone: formData.phone,
+              address: formData.address,
+              city: formData.city,
+              state: formData.state,
+            });
+            setSavedAddresses(prev => [created as AddressOption, ...prev]);
+            setSelectedAddressId(created.id);
+          }
+          setSaveAddress(false);
+          setAddressLabel("");
+          toast.success('Address saved');
+        } catch (e) {
+          console.error('Failed to save address:', e);
+          toast.error('Failed to save address');
+          return;
+        }
+      }
+    }
+    setCurrentStep(currentStep + 1);
   };
 
   return (
@@ -360,6 +526,32 @@ export default function Checkout() {
 
                   {fulfillmentMethod === "delivery" ? (
                     <div className="space-y-4">
+                      {/* Saved addresses selector - always visible */}
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <Label>Saved Address</Label>
+                          <Button variant="ghost" size="sm" className="gap-1" onClick={loadAddresses} disabled={addressesLoading}>
+                            <RotateCw className={`h-4 w-4 ${addressesLoading ? 'animate-spin' : ''}`} /> Refresh
+                          </Button>
+                        </div>
+                        <div className="mt-2">
+                          <Select value={selectedAddressId} onValueChange={setSelectedAddressId}>
+                            <SelectTrigger>
+                              <SelectValue placeholder={addressesLoading ? 'Loading...' : (savedAddresses.length ? 'Choose address' : 'No saved addresses')} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="__new__">Use new address</SelectItem>
+                              {savedAddresses.map(a => (
+                                <SelectItem key={String(a.id)} value={String(a.id)}>
+                                  {a.label ? `${a.label} • ` : ''}{a.address}, {a.city}, {a.state}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      {/* Address fields */}
                       <div>
                         <Label>Address</Label>
                         <Input 
@@ -389,21 +581,68 @@ export default function Checkout() {
                           />
                         </div>
                       </div>
+
+                      {/* Save address checkbox + label */}
+                      {selectedAddressId === '__new__' && (
+                        <div className="space-y-2">
+                          <div className="flex items-center space-x-2">
+                            <Checkbox id="save-address" checked={saveAddress} onCheckedChange={(v: any) => setSaveAddress(Boolean(v))} />
+                            <Label htmlFor="save-address">Save this address</Label>
+                          </div>
+                          {saveAddress && (
+                            <div>
+                              <Label>Address Label (optional)</Label>
+                              <Input 
+                                className="mt-2" 
+                                placeholder="e.g. Home, Office"
+                                value={addressLabel}
+                                onChange={(e) => setAddressLabel(e.target.value)}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   ) : (
-                    <div>
-                      <Label>Select Warehouse</Label>
-                      <select 
-                        className="w-full mt-2 border rounded-md px-3 py-2"
-                        value={formData.pickupLocation}
-                        onChange={(e) => setFormData({...formData, pickupLocation: e.target.value})}
-                        required
-                      >
-                        <option value="">Select a location</option>
-                        <option value="Lagos - Ikeja">Lagos - Ikeja</option>
-                        <option value="Abuja - Garki">Abuja - Garki</option>
-                        <option value="Port Harcourt - GRA">Port Harcourt - GRA</option>
-                      </select>
+                    <div className="space-y-3">
+                      <Label>Select Pickup Location</Label>
+                      {loadingPickupLocations ? (
+                        <div className="text-sm text-muted-foreground mt-2">Loading pickup locations...</div>
+                      ) : !pickupLocations || pickupLocations.length === 0 ? (
+                        <div className="text-sm text-red-500 mt-2">No pickup locations available right now. Please choose Delivery.</div>
+                      ) : (
+                        <>
+                          <Select
+                            value={formData.pickupLocation}
+                            onValueChange={(v) => setFormData({ ...formData, pickupLocation: v })}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a pickup location" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {pickupLocations.map((loc) => (
+                                <SelectItem key={loc.id} value={loc.name}>
+                                  {loc.name} • {loc.city}{loc.state ? `, ${loc.state}` : ''}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          {formData.pickupLocation && (
+                            <div className="text-xs text-muted-foreground mt-2">
+                              {(() => {
+                                const sel = pickupLocations.find(l => l.name === formData.pickupLocation);
+                                if (!sel) return null;
+                                const parts = [sel.address_line1, sel.address_line2].filter(Boolean);
+                                return (
+                                  <span>
+                                    {parts.length ? parts.join(', ') + ' • ' : ''}{sel.city}{sel.state ? `, ${sel.state}` : ''} • {sel.country || ''}
+                                  </span>
+                                );
+                              })()}
+                            </div>
+                          )}
+                        </>
+                      )}
                     </div>
                   )}
                 </CardContent>
@@ -457,7 +696,7 @@ export default function Checkout() {
                 </Button>
               )}
               {currentStep < 3 ? (
-                <Button className="flex-1 solar-glow" onClick={() => setCurrentStep(currentStep + 1)}>
+                <Button className="flex-1 solar-glow" onClick={handleContinue}>
                   Continue
                 </Button>
               ) : (

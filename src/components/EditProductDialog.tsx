@@ -40,6 +40,7 @@ interface Product {
   specifications?: string[];
   images?: string[];
   category?: Category;
+  video_url?: string | null;
 }
 
 interface EditProductDialogProps {
@@ -94,6 +95,7 @@ export function EditProductDialog({ product, isOpen, onOpenChange }: EditProduct
   const [warranty, setWarranty] = useState("");
   const [specifications, setSpecifications] = useState("");
   const [images, setImages] = useState<FileList | null>(null);
+  const [videoUrl, setVideoUrl] = useState("");
 
   // Fetch categories
   const { data: categories } = useQuery({
@@ -113,6 +115,7 @@ export function EditProductDialog({ product, isOpen, onOpenChange }: EditProduct
       setWarranty(product.warranty || "");
       setSpecifications(product.specifications ? product.specifications.join('\n') : "");
       setImages(null); // Reset images for new upload
+      setVideoUrl(product.video_url || "");
     }
   }, [product]);
 
@@ -132,6 +135,7 @@ export function EditProductDialog({ product, isOpen, onOpenChange }: EditProduct
       setWarranty("");
       setSpecifications("");
       setImages(null);
+      setVideoUrl("");
       // Invalidate products query to refresh list
       queryClient.invalidateQueries({ queryKey: ['products'] });
     },
@@ -159,6 +163,7 @@ export function EditProductDialog({ product, isOpen, onOpenChange }: EditProduct
       const specsArray = specifications.split('\n').filter(s => s.trim());
       specsArray.forEach(spec => formData.append('specifications[]', spec));
     }
+    if (videoUrl.trim()) formData.append('video_url', videoUrl.trim());
     if (images) {
       Array.from(images).forEach(file => formData.append('images[]', file));
     }
@@ -267,6 +272,17 @@ export function EditProductDialog({ product, isOpen, onOpenChange }: EditProduct
               value={specifications}
               onChange={(e) => setSpecifications(e.target.value)}
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="edit-video-url">YouTube Video URL (optional)</Label>
+            <Input
+              id="edit-video-url"
+              placeholder="https://www.youtube.com/watch?v=VIDEO_ID"
+              value={videoUrl}
+              onChange={(e) => setVideoUrl(e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">If provided, the video will show first on the product page.</p>
           </div>
 
           <div className="space-y-2">

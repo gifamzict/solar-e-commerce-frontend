@@ -46,6 +46,7 @@ import PreOrderTrack from "./pages/store/PreOrderTrack";
 import PreOrderConfirmation from "./pages/store/PreOrderConfirmation";
 import CustomerPreordersAdminPage from "./pages/CustomerPreorders";
 import NotificationsPage from "./pages/Notifications";
+import PickupLocationsPage from "./pages/PickupLocations";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -107,6 +108,7 @@ const App = () => (
           <Route path="/management-portal/preorders" element={<ProtectedRoute><DashboardLayout><Preorders /></DashboardLayout></ProtectedRoute>} />
           <Route path="/management-portal/customer-preorders" element={<ProtectedRoute><DashboardLayout><CustomerPreordersAdminPage /></DashboardLayout></ProtectedRoute>} />
           <Route path="/management-portal/notifications" element={<ProtectedRoute><DashboardLayout><NotificationsPage /></DashboardLayout></ProtectedRoute>} />
+          <Route path="/management-portal/pickup-locations" element={<ProtectedRoute><DashboardLayout><PickupLocationsPage /></DashboardLayout></ProtectedRoute>} />
           
           <Route path="*" element={<NotFound />} />
         </Routes>

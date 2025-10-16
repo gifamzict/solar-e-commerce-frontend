@@ -176,15 +176,17 @@ export default function Home() {
         const response = await axios.get(`${API_BASE_URL}products`);
         console.log('Featured products response:', response.data);
         const allProducts = response.data.products || [];
-        
-        return allProducts.map((product: any) => {
+        const normalized = allProducts.map((product: any) => {
           // Determine default image based on product name
           const defaultImage = Object.entries(defaultImages).find(([key]) => 
-            product.name.toLowerCase().includes(key.toLowerCase())
+            product.name?.toLowerCase?.().includes(key.toLowerCase())
           )?.[1] || defaultPanel;
 
           // Build image from database paths like ProductDetail
           const dbImage = getImageUrls(product?.images || product?.image)[0];
+
+          // Derive a timestamp for sorting (prefer created_at/updated_at, fallback to id)
+          const ts = new Date(product?.created_at || product?.updated_at || 0).getTime() || Number(product?.id) || 0;
 
           return {
             id: product.id,
@@ -197,9 +199,15 @@ export default function Home() {
                    Number(product.price) >= 100000 ? "Premium" : 
                    "Featured",
             image: dbImage || defaultImage,
-            inStock: product.stock > 0
+            inStock: product.stock > 0,
+            _ts: ts,
           };
         });
+        // Sort newest first and take latest 8
+        return normalized
+          .sort((a: any, b: any) => (b._ts ?? 0) - (a._ts ?? 0))
+          .slice(0, 8)
+          .map(({ _ts, ...rest }) => rest);
       } catch (error) {
         console.error('Error fetching featured products:', error);
         return [];
@@ -443,47 +451,58 @@ export default function Home() {
               <p>Please check back later or contact us for custom orders.</p>
             </div>
           ) : (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
-              {featuredProducts.map((product, index) => {
-                const isExpanded = expandedProducts.has(product.id);
-                return (
-                  <Card key={product.id} className="border-border hover:border-primary/50 transition-all duration-500 hover-lift group overflow-hidden bg-card hover:shadow-2xl">
-                    <CardContent className="p-6">
-                      <div className="mb-6 flex justify-center">
-                        <div className="w-48 h-48 rounded-2xl overflow-hidden bg-muted shadow-lg group-hover:shadow-2xl transition-all duration-500">
-                          <img 
-                            src={product.image}
-                            alt={product.name}
-                            className="w-full h-full object-cover group-hover:scale-125 group-hover:rotate-3 transition-transform duration-700"
-                            onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }}
-                          />
+            <>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
+                {featuredProducts.map((product, index) => {
+                  const isExpanded = expandedProducts.has(product.id);
+                  return (
+                    <Card key={product.id} className="border-border hover:border-primary/50 transition-all duration-500 hover-lift group overflow-hidden bg-card hover:shadow-2xl">
+                      <CardContent className="p-6">
+                        <div className="mb-6 flex justify-center">
+                          <div className="w-48 h-48 rounded-2xl overflow-hidden bg-muted shadow-lg group-hover:shadow-2xl transition-all duration-500">
+                            <img 
+                              src={product.image}
+                              alt={product.name}
+                              className="w-full h-full object-cover group-hover:scale-125 group-hover:rotate-3 transition-transform duration-700"
+                              onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }}
+                            />
+                          </div>
                         </div>
-                      </div>
-                      <h3 className="text-lg font-bold mb-2 text-center text-foreground group-hover:text-primary transition-colors duration-300">
-                        {product.name}
-                      </h3>
-                      <p className={`text-sm text-muted-foreground text-center mb-2 ${isExpanded ? '' : 'line-clamp-3'}`}>
-                        {product.specs || 'High quality solar product.'}
-                      </p>
-                      <div className="flex justify-center mb-4">
-                        <Button variant="link" className="px-0 text-primary" onClick={() => toggleExpand(product.id)}>
-                          {isExpanded ? 'Show less' : 'Read more'}
-                        </Button>
-                      </div>
-                      <p className="text-2xl font-bold text-primary text-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                        {product.price}
-                      </p>
-                      <Link to={`/product/${product.id}`}>
-                        <Button className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-all hover:shadow-lg duration-300">
-                          View Details
-                          <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                        </Button>
-                      </Link>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
+                        <h3 className="text-lg font-bold mb-2 text-center text-foreground group-hover:text-primary transition-colors duration-300">
+                          {product.name}
+                        </h3>
+                        <p className={`text-sm text-muted-foreground text-center mb-2 ${isExpanded ? '' : 'line-clamp-3'}`}>
+                          {product.specs || 'High quality solar product.'}
+                        </p>
+                        <div className="flex justify-center mb-4">
+                          <Button variant="link" className="px-0 text-primary" onClick={() => toggleExpand(product.id)}>
+                            {isExpanded ? 'Show less' : 'Read more'}
+                          </Button>
+                        </div>
+                        <p className="text-2xl font-bold text-primary text-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                          {product.price}
+                        </p>
+                        <Link to={`/product/${product.id}`}>
+                          <Button className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-all hover:shadow-lg duration-300">
+                            View Details
+                            <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                          </Button>
+                        </Link>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+              {/* Browse all products CTA */}
+              <div className="mt-10 flex justify-center">
+                <Link to="/all-products">
+                  <Button variant="outline" className="inline-flex items-center gap-2 px-6 py-6 text-base rounded-xl hover:shadow-lg">
+                    Browse all products
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </Link>
+              </div>
+            </>
           )}
         </div>
       </section>

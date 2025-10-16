@@ -8,7 +8,7 @@ import { useCart } from "@/contexts/CartContext";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { ShoppingCart, Heart, Share2, Star, Minus, Plus, Check } from "lucide-react";
-import { getImageUrl, getImageUrls, formatNaira } from "@/lib/utils";
+import { getImageUrl, getImageUrls, formatNaira, getYouTubeEmbedUrl, getYouTubeThumbnailUrl } from "@/lib/utils";
 import { useStoreAuth } from "@/contexts/StoreAuthContext";
 
 export default function ProductDetail() {
@@ -44,6 +44,16 @@ export default function ProductDetail() {
 
   // Get properly formatted image URLs
   const productImages = getImageUrls(product?.images || product?.image);
+  const videoEmbed = getYouTubeEmbedUrl(product?.video_url);
+
+  type GalleryItem = { type: 'video'; src: string } | { type: 'image'; src: string };
+  const gallery: GalleryItem[] = [
+    ...(videoEmbed ? [{ type: 'video', src: videoEmbed }] as GalleryItem[] : []),
+    ...productImages.map((src) => ({ type: 'image', src }) as GalleryItem),
+  ];
+
+  const current = gallery[selectedImage];
+  const cartImage = productImages[0] || '/placeholder.svg';
 
   const handleAddToCart = () => {
     if (!product) return;
@@ -55,7 +65,7 @@ export default function ProductDetail() {
       id: product.id.toString(),
       name: product.name,
       price: product.price,
-      image: productImages[0],
+      image: cartImage,
       category: product.category?.name || 'Product'
     }, quantity);
   };
@@ -70,7 +80,7 @@ export default function ProductDetail() {
       id: product.id.toString(),
       name: product.name,
       price: product.price,
-      image: productImages[0],
+      image: cartImage,
       category: product.category?.name || 'Product'
     }, quantity);
     navigate('/checkout');
@@ -91,39 +101,59 @@ export default function ProductDetail() {
   return (
     <div className="container mx-auto px-4 py-8 animate-fade-in">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-12">
-        {/* Images */}
+        {/* Media */}
         <div>
           <Card className="mb-4 overflow-hidden">
             <div className="aspect-square bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center">
-              <img
-                src={productImages[selectedImage]}
-                alt={product.name}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.src = '/placeholder.svg';
-                }}
-              />
+              {current?.type === 'video' ? (
+                <iframe
+                  className="w-full h-full"
+                  src={`${current.src}?rel=0`}
+                  title={product.name}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                />
+              ) : (
+                <img
+                  src={current?.src}
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }}
+                />
+              )}
             </div>
           </Card>
-          {productImages.length > 1 && (
+          {gallery.length > 1 && (
             <div className="grid grid-cols-4 gap-2">
-              {productImages.map((img, index) => (
+              {gallery.map((g, index) => (
                 <Card
                   key={index}
                   className={`cursor-pointer overflow-hidden ${selectedImage === index ? 'ring-2 ring-primary' : ''}`}
                   onClick={() => setSelectedImage(index)}
                 >
-                  <div className="aspect-square bg-gradient-to-br from-primary/10 to-accent/10">
-                    <img 
-                      src={img} 
-                      alt={`View ${index + 1}`} 
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.src = '/placeholder.svg';
-                      }}
-                    />
+                  <div className="aspect-square relative bg-gradient-to-br from-primary/10 to-accent/10">
+                    {g.type === 'video' ? (
+                      <img
+                        src={getYouTubeThumbnailUrl(product?.video_url, 'hq')}
+                        alt={`Video`}
+                        className="w-full h-full object-cover"
+                        onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }}
+                      />
+                    ) : (
+                      <img 
+                        src={g.src} 
+                        alt={`View ${index + 1}`} 
+                        className="w-full h-full object-cover"
+                        onError={(e) => { (e.target as HTMLImageElement).src = '/placeholder.svg'; }}
+                      />
+                    )}
+                    {g.type === 'video' && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                        <div className="w-8 h-8 bg-white/90 rounded-full flex items-center justify-center">
+                          <svg viewBox="0 0 24 24" className="w-4 h-4 text-black fill-current"><path d="M8 5v14l11-7z"/></svg>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </Card>
               ))}
@@ -248,7 +278,6 @@ export default function ProductDetail() {
         <TabsContent value="reviews" className="mt-6">
           <Card className="p-6">
             <h3 className="text-xl font-semibold mb-4">Customer Reviews</h3>
-            <p className="text-muted-foreground">Reviews coming soon...</p>
           </Card>
         </TabsContent>
       </Tabs>

@@ -15,6 +15,7 @@ import {
   CalendarClock,
   CalendarCheck2,
   Bell,
+  MapPin,
 } from "lucide-react";
 import {
   Sidebar,
@@ -42,6 +43,7 @@ const menuItems = [
   { title: "Admin Users", url: "/management-portal/admin-users", icon: UserCog },
   { title: "Payments", url: "/management-portal/payments", icon: CreditCard },
   { title: "Notifications", url: "/management-portal/notifications", icon: Bell },
+  { title: "Pickup Locations", url: "/management-portal/pickup-locations", icon: MapPin },
   { title: "Settings", url: "/management-portal/settings", icon: Settings },
 ];
 

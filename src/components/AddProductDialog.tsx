@@ -21,6 +21,7 @@ import { Upload } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import axios from "axios";
+import { apiUrl, extractYouTubeId, getYouTubeEmbedUrl } from "@/lib/utils";
 
 interface Category {
   id: number;
@@ -39,7 +40,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000
 // API functions
 const fetchCategories = async () => {
   try {
-    const response = await axios.get(`${API_BASE_URL}categories`);
+    const response = await axios.get(apiUrl('categories'));
     const data = response.data.categories || response.data.data || response.data;
     return Array.isArray(data) ? data : [];
   } catch (error) {
@@ -52,15 +53,25 @@ const fetchCategories = async () => {
 
 const createProduct = async (formData: FormData) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/products`, formData, {
+    const response = await axios.post(apiUrl('products'), formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
       },
     });
     return response.data;
-  } catch (error) {
+  } catch (error: any) {
     if (axios.isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.message || error.response.statusText);
+      const data: any = error.response.data;
+      const rawText = typeof data === 'string' ? data : '';
+      const srvMsg = typeof data === 'object' ? (data?.message || data?.error) : undefined;
+      const msg = srvMsg || error.response.statusText || 'Request failed';
+      const e: any = new Error(msg);
+      e.status = error.response.status;
+      e.raw = data;
+      e.bodySnippet = rawText ? rawText.slice(0, 500) : undefined;
+      throw e;
     }
     throw new Error("Network error or failed to connect.");
   }
@@ -79,6 +90,7 @@ export function AddProductDialog({ isOpen, onOpenChange }: AddProductDialogProps
   const [warranty, setWarranty] = useState("");
   const [specifications, setSpecifications] = useState("");
   const [images, setImages] = useState<FileList | null>(null);
+  const [videoUrl, setVideoUrl] = useState("");
 
   // Fetch categories
   const { data: categories } = useQuery({
@@ -102,11 +114,17 @@ export function AddProductDialog({ isOpen, onOpenChange }: AddProductDialogProps
       setWarranty("");
       setSpecifications("");
       setImages(null);
+      setVideoUrl("");
       // Invalidate products query to refresh list
       queryClient.invalidateQueries({ queryKey: ['products'] });
     },
-    onError: (error) => {
-      toast.error(error.message || "Failed to create product.");
+    onError: (error: any) => {
+      const status = error?.status || error?.response?.status;
+      const snippet = error?.bodySnippet || (typeof error?.raw === 'string' ? String(error.raw).slice(0, 300) : '');
+      const baseMsg = error?.message || "Failed to create product.";
+      const composed = `Add product failed${status ? ` (${status})` : ''}: ${baseMsg}` + (snippet ? `\n${snippet}` : '');
+      toast.error(composed);
+      console.error('Add product error:', error);
     },
   });
 
@@ -140,6 +158,14 @@ export function AddProductDialog({ isOpen, onOpenChange }: AddProductDialogProps
       return;
     }
 
+    if (videoUrl.trim()) {
+      const vid = extractYouTubeId(videoUrl.trim());
+      if (!vid) {
+        toast.error('Please enter a valid YouTube URL');
+        return;
+      }
+    }
+
     const formData = new FormData();
     formData.append('name', name);
     formData.append('category_id', categoryId);
@@ -151,6 +177,10 @@ export function AddProductDialog({ isOpen, onOpenChange }: AddProductDialogProps
     if (specifications) {
       const specsArray = specifications.split('\n').filter(s => s.trim());
       specsArray.forEach(spec => formData.append('specifications[]', spec));
+    }
+    if (videoUrl.trim()) {
+      const normalized = getYouTubeEmbedUrl(videoUrl.trim()) || videoUrl.trim();
+      formData.append('video_url', normalized);
     }
     if (images) {
       Array.from(images).forEach(file => formData.append('images[]', file));
@@ -263,6 +293,17 @@ export function AddProductDialog({ isOpen, onOpenChange }: AddProductDialogProps
           </div>
 
           <div className="space-y-2">
+            <Label htmlFor="video_url">YouTube Video URL (optional)</Label>
+            <Input
+              id="video_url"
+              placeholder="https://www.youtube.com/watch?v=VIDEO_ID"
+              value={videoUrl}
+              onChange={(e) => setVideoUrl(e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">If provided, the video will show first on the product page.</p>
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="images">Product Images</Label>
             <div className="border-2 border-dashed rounded-md p-6 text-center hover:border-primary transition-colors">
               <input
@@ -312,3 +353,10 @@ export function AddProductDialog({ isOpen, onOpenChange }: AddProductDialogProps
     </Dialog>
   );
 }
+
+
+
+
+
+
+

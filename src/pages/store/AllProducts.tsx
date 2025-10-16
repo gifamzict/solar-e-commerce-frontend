@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,28 +11,131 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { getImageUrls, ensureNairaSymbol } from "@/lib/utils";
 
+// --- Helpers to normalize and fetch products robustly ---
+const normalizeAllProductsResponse = (data: any) => {
+  // Accept a wide range of backend response shapes
+  if (!data) return [] as any[];
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data?.products)) return data.products;
+  if (Array.isArray(data?.data)) return data.data;
+  if (Array.isArray(data?.result)) return data.result;
+  if (Array.isArray(data?.items)) return data.items;
+  // Handle nested pagination shapes e.g. { data: { data: [...] } }
+  if (Array.isArray(data?.data?.data)) return data.data.data;
+  return [] as any[];
+};
+
+const fetchAllProducts = async (API_BASE_URL: string) => {
+  const base = (API_BASE_URL || '').replace(/\/+$/, '');
+  const endpoints = [
+    `${base}/products`,
+    `${base}/products/all`,
+    `${base}/store/products`,
+    `${base}/products?limit=1000`,
+  ];
+
+  let lastError: unknown = null;
+
+  for (const url of endpoints) {
+    try {
+      const resp = await axios.get(url);
+      const products = normalizeAllProductsResponse(resp.data);
+      if (Array.isArray(products)) {
+        return { products };
+      }
+    } catch (err: any) {
+      lastError = err;
+      if (axios.isAxiosError(err) && err.response?.status === 404) {
+        continue;
+      }
+      continue;
+    }
+  }
+
+  if (lastError) {
+    // As a final attempt, return empty array instead of throwing so UI can show friendly state
+    return { products: [] };
+  }
+
+  return { products: [] };
+};
+
+// Helper: extract a numeric price from various shapes
+const getNumericPrice = (product: any): number | null => {
+  const raw = typeof product?.price === 'number'
+    ? product.price
+    : product?.price
+      ? Number(String(product.price).replace(/[^\d.]/g, ''))
+      : product?.formatted_price
+        ? Number(String(product.formatted_price).replace(/[^\d.]/g, ''))
+        : null;
+  if (raw == null || Number.isNaN(raw)) return null;
+  return Math.round(Number(raw));
+};
+
 export default function AllProducts() {
   const [priceRange, setPriceRange] = useState([0, 500000]);
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/';
 
-  // Fetch all products
+  // Fetch all products (robust to various API shapes)
   const { data: productsResponse, isLoading } = useQuery({
     queryKey: ['all-products'],
-    queryFn: async () => {
-      const response = await axios.get(`${API_BASE_URL}products`);
-      return response.data;
-    }
+    queryFn: async () => fetchAllProducts(API_BASE_URL),
   });
 
-  // Extract products array from the response object
+  // Extract products array from the normalized response
   const products = productsResponse?.products || [];
+
+  // Compute dynamic max from product prices
+  const numericPrices = useMemo(() => (
+    Array.isArray(products)
+      ? products
+          .map(getNumericPrice)
+          .filter((n): n is number => typeof n === 'number' && !Number.isNaN(n))
+      : []
+  ), [products]);
+
+  const dynamicMax = useMemo(() => {
+    if (!numericPrices.length) return 500000; // fallback default
+    return Math.max(...numericPrices);
+  }, [numericPrices]);
+
+  // Initialize/clamp price range when products change
+  const DEFAULT_UPPER = 500000;
+  const initializedRef = useRef(false);
+  useEffect(() => {
+    if (!products.length) return;
+    setPriceRange(prev => {
+      const wasDefault = prev[0] === 0 && prev[1] === DEFAULT_UPPER;
+      if (!initializedRef.current || wasDefault) {
+        initializedRef.current = true;
+        return [0, dynamicMax];
+      }
+      const upper = Math.min(prev[1], dynamicMax);
+      const lower = Math.min(prev[0], upper);
+      return [lower, upper];
+    });
+  }, [products.length, dynamicMax]);
+
+  const isDefaultRange = priceRange[0] === 0 && priceRange[1] === dynamicMax;
+
+  // Apply price filtering
+  const filteredProducts = useMemo(() => {
+    if (!Array.isArray(products)) return [];
+    return products.filter((p: any) => {
+      const price = getNumericPrice(p);
+      if (!isDefaultRange && (price == null || Number.isNaN(price))) return false;
+      if (price == null) return true; // include unknown-priced when range is default
+      return price >= priceRange[0] && price <= priceRange[1];
+    });
+  }, [products, priceRange, isDefaultRange]);
 
   // Fetch categories for filtering
   const { data: categoriesResponse } = useQuery({
     queryKey: ['categories'],
     queryFn: async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}categories`);
+        const response = await axios.get(`${API_BASE_URL.replace(/\/+$/, '')}/categories`);
         return response.data;
       } catch (error) {
         console.error("Failed to fetch categories:", error);
@@ -63,8 +166,8 @@ export default function AllProducts() {
                 <Slider
                   value={priceRange}
                   onValueChange={setPriceRange}
-                  max={500000}
-                  step={25000}
+                  max={dynamicMax}
+                  step={Math.max(1000, Math.round(dynamicMax / 40))}
                   className="mb-2"
                 />
                 <div className="flex justify-between text-sm text-muted-foreground">
@@ -77,7 +180,7 @@ export default function AllProducts() {
               <div className="mb-6">
                 <Label className="mb-3 block">Categories</Label>
                 <div className="space-y-2">
-                  {categories.map((category) => (
+                  {categories.map((category: any) => (
                     <div key={category.id} className="flex items-center">
                       <Checkbox id={`category-${category.id}`} />
                       <label
@@ -91,7 +194,7 @@ export default function AllProducts() {
                 </div>
               </div>
 
-              <Button variant="outline" className="w-full">Reset Filters</Button>
+              <Button variant="outline" className="w-full" onClick={() => setPriceRange([0, dynamicMax])}>Reset Filters</Button>
             </CardContent>
           </Card>
         </aside>
@@ -114,7 +217,7 @@ export default function AllProducts() {
                 </Card>
               ))}
             </div>
-          ) : products.length === 0 ? (
+          ) : filteredProducts.length === 0 ? (
             <div className="text-center col-span-full py-16">
               <h2 className="text-2xl font-semibold mb-2">No Products Found</h2>
               <p className="text-muted-foreground">
@@ -124,7 +227,7 @@ export default function AllProducts() {
           ) : (
             <>
               <div className="flex justify-between items-center mb-6">
-                <p className="text-muted-foreground">{products.length} products found</p>
+                <p className="text-muted-foreground">{filteredProducts.length} products found</p>
                 <select className="border rounded-md px-3 py-2 text-sm">
                   <option>Sort by: Featured</option>
                   <option>Price: Low to High</option>
@@ -134,7 +237,7 @@ export default function AllProducts() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {products.map((product: any) => (
+                {filteredProducts.map((product: any) => (
                   <Card key={product.id} className="overflow-hidden hover-lift cursor-pointer group">
                     <div className="relative h-64 bg-gradient-to-br from-primary/10 to-accent/10">
                       <img 

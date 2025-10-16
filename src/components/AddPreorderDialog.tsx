@@ -47,6 +47,7 @@ export function AddPreorderDialog({ isOpen, onOpenChange }: AddPreorderDialogPro
   const [powerOutput, setPowerOutput] = useState("");
   const [warrantyPeriod, setWarrantyPeriod] = useState("");
   const [specifications, setSpecifications] = useState("");
+  const [videoUrl, setVideoUrl] = useState("");
 
   const { data: categories } = useQuery({
     queryKey: ['preorder-categories'],
@@ -69,6 +70,7 @@ export function AddPreorderDialog({ isOpen, onOpenChange }: AddPreorderDialogPro
       setPowerOutput("");
       setWarrantyPeriod("");
       setSpecifications("");
+      setVideoUrl("");
       queryClient.invalidateQueries({ queryKey: ['preorders'] });
     },
     onError: (error: any) => {
@@ -159,6 +161,7 @@ export function AddPreorderDialog({ isOpen, onOpenChange }: AddPreorderDialogPro
     if (powerOutput) formData.append('power_output', powerOutput);
     if (warrantyPeriod) formData.append('warranty_period', warrantyPeriod);
     if (specifications) formData.append('specifications', specifications);
+    if (videoUrl.trim()) formData.append('video_url', videoUrl.trim());
 
     if (images) {
       Array.from(images).forEach((file, i) => formData.append(`images[${i}]`, file));
@@ -255,6 +258,17 @@ export function AddPreorderDialog({ isOpen, onOpenChange }: AddPreorderDialogPro
           <div className="space-y-2">
             <Label htmlFor="specifications">Specifications</Label>
             <Textarea id="specifications" placeholder="List key specs, materials, certifications, dimensions, etc." rows={3} value={specifications} onChange={(e) => setSpecifications(e.target.value)} />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="video_url">YouTube Video URL (optional)</Label>
+            <Input
+              id="video_url"
+              placeholder="https://www.youtube.com/watch?v=VIDEO_ID"
+              value={videoUrl}
+              onChange={(e) => setVideoUrl(e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">If provided, the video will be shown before images on the product page.</p>
           </div>
 
           <div className="space-y-2">

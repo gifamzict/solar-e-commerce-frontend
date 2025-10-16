@@ -44,6 +44,7 @@ interface PreorderItem {
   power_output?: string | null;
   warranty_period?: string | null;
   specifications?: string | null;
+  video_url?: string | null;
 }
 
 interface EditPreorderDialogProps {
@@ -68,6 +69,7 @@ export function EditPreorderDialog({ preorder, isOpen, onOpenChange }: EditPreor
   const [powerOutput, setPowerOutput] = useState("");
   const [warrantyPeriod, setWarrantyPeriod] = useState("");
   const [specifications, setSpecifications] = useState("");
+  const [videoUrl, setVideoUrl] = useState("");
 
   const { data: categories } = useQuery({
     queryKey: ['preorder-categories'],
@@ -91,6 +93,7 @@ export function EditPreorderDialog({ preorder, isOpen, onOpenChange }: EditPreor
       setPowerOutput(preorder.power_output || "");
       setWarrantyPeriod(preorder.warranty_period || "");
       setSpecifications(preorder.specifications || "");
+      setVideoUrl(preorder.video_url || "");
     }
   }, [preorder]);
 
@@ -157,6 +160,7 @@ export function EditPreorderDialog({ preorder, isOpen, onOpenChange }: EditPreor
     if (powerOutput) formData.append('power_output', powerOutput);
     if (warrantyPeriod) formData.append('warranty_period', warrantyPeriod);
     if (specifications) formData.append('specifications', specifications);
+    if (videoUrl.trim()) formData.append('video_url', videoUrl.trim());
 
     if (images) Array.from(images).forEach(f => formData.append('images[]', f));
 
@@ -261,6 +265,17 @@ export function EditPreorderDialog({ preorder, isOpen, onOpenChange }: EditPreor
           <div className="space-y-2">
             <Label htmlFor="edit-po-specs">Specifications</Label>
             <Textarea id="edit-po-specs" rows={4} value={specifications} onChange={(e) => setSpecifications(e.target.value)} placeholder="List key specs, materials, certifications, dimensions, etc." />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="edit-po-video-url">YouTube Video URL (optional)</Label>
+            <Input
+              id="edit-po-video-url"
+              placeholder="https://www.youtube.com/watch?v=VIDEO_ID"
+              value={videoUrl}
+              onChange={(e) => setVideoUrl(e.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">If provided, the video will show first on the pre-order page.</p>
           </div>
 
           <div className="space-y-2">

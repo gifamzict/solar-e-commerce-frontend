@@ -6,7 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-
+import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
+import { AddPickupLocationDialog } from "@/components/AddPickupLocationDialog";
+import { fetchPickupLocations, PickupLocation } from "@/services/pickup-location";
+import { Badge } from "@/components/ui/badge";
+import { MapPin } from "lucide-react";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/';
 
@@ -30,6 +35,11 @@ export default function Settings() {
       low_stock_alerts: true,
       customer_messages: true,
     },
+  });
+
+  const { data: pickupLocations } = useQuery<PickupLocation[]>({
+    queryKey: ["pickup-locations"],
+    queryFn: fetchPickupLocations,
   });
 
   useEffect(() => {
@@ -66,6 +76,54 @@ export default function Settings() {
       </div>
 
       <div className="grid gap-6">
+        {/* Pickup Locations quick manage */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2"><MapPin className="h-5 w-5" /> Pickup Locations</CardTitle>
+                <CardDescription>Quickly review and add pickup locations. Use Manage All for advanced actions.</CardDescription>
+              </div>
+              <div className="flex gap-2">
+                <AddPickupLocationDialog />
+                <Button variant="outline" asChild>
+                  <Link to="/management-portal/pickup-locations">Manage All</Link>
+                </Button>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {(!pickupLocations || pickupLocations.length === 0) ? (
+              <p className="text-muted-foreground">No pickup locations yet. Add one to get started.</p>
+            ) : (
+              <div className="space-y-3">
+                {pickupLocations.slice(0, 5).map((loc) => (
+                  <div key={loc.id} className="flex items-start justify-between border rounded-md p-3">
+                    <div>
+                      <div className="font-medium">{loc.name}</div>
+                      <div className="text-sm text-muted-foreground">
+                        {loc.address_line1}{loc.address_line2 ? `, ${loc.address_line2}` : ''}, {loc.city}{loc.state ? `, ${loc.state}` : ''}, {loc.country}
+                      </div>
+                      {(loc.contact_person || loc.phone) && (
+                        <div className="text-xs text-muted-foreground mt-1">{loc.contact_person} {loc.phone ? `• ${loc.phone}` : ''}</div>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant={loc.active ? "default" : "secondary"}>{loc.active ? "Active" : "Inactive"}</Badge>
+                      {loc.is_default ? <Badge variant="outline">Default</Badge> : null}
+                    </div>
+                  </div>
+                ))}
+                {pickupLocations.length > 5 && (
+                  <Button variant="ghost" className="w-full" asChild>
+                    <Link to="/management-portal/pickup-locations">View all locations</Link>
+                  </Button>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader>
             <CardTitle>Store Information</CardTitle>
