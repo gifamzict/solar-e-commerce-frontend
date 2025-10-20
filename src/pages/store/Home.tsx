@@ -639,7 +639,7 @@ export default function Home() {
               </Link>
             </div>
             
-            <div className="mt-12 pt-8 border-t border-white/20 flex flex-wrap gap-8 justify-center text-sm">
+            <div className="mt-12 pt-8 border-t border-white/20 flex flex-wrap gap-8 justify-center text-sm text-black">
               <div className="flex items-center gap-2">
                 <Star className="h-5 w-5 text-primary fill-primary" />
                 <span>4.9/5 Rating (2,000+ Reviews)</span>
