@@ -23,8 +23,8 @@ export function getImageUrl(imagePath: string | undefined | null, baseUrl?: stri
     return imagePath;
   }
 
-  // If it's a relative path starting with /, return as is
-  if (imagePath.startsWith('/')) {
+  // If it's a relative local path starting with /, return as is (for local placeholder images)
+  if (imagePath.startsWith('/placeholder') || imagePath.startsWith('/public')) {
     return imagePath;
   }
 
@@ -34,7 +34,12 @@ export function getImageUrl(imagePath: string | undefined | null, baseUrl?: stri
   // Remove /api/ from the end if present to get the base domain
   const backendBaseUrl = apiBaseUrl.replace(/\/api\/?$/, '');
 
-  // Construct the full URL ensuring proper path structure
+  // If the path already starts with /, use it directly (backend returns full paths like /storage/...)
+  // Otherwise, construct with /storage/ prefix
+  if (imagePath.startsWith('/')) {
+    return `${backendBaseUrl}${imagePath}`;
+  }
+
   return `${backendBaseUrl}/storage/${imagePath}`;
 }
 
