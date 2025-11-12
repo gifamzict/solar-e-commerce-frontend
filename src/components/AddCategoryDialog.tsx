@@ -17,7 +17,7 @@ import { toast } from "sonner";
 import axios from "axios";
 
 // Define the base URL from environment variables
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://web-production-d1120.up.railway.app/api/';
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'https://web-production-d1120.up.railway.app/api').replace(/\/$/, '');
 
 // API function to create category
 const createCategory = async (categoryData: { name: string; slug: string; description: string }) => {
