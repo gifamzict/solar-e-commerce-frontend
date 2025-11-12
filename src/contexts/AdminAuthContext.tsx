@@ -45,32 +45,40 @@ const AdminAuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      const response = await axios.post(`${API_URL}/admins/login`, {
-        email,
-        password,
-      });
+      const response = await axios.post(
+        `${API_URL}/admins/login`,
+        {
+          email,
+          password,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          },
+        }
+      );
 
-      const { token, admin: adminData } = response.data;
+      if (response.data.token && response.data.admin) {
+        const token = response.data.token;
+        const admin = response.data.admin;
 
-      // Store token and admin data
-      localStorage.setItem("adminToken", token);
-      localStorage.setItem("adminData", JSON.stringify(adminData));
-
-      // Update state
-      setIsAuthenticated(true);
-      setAdmin(adminData);
-
-      // Configure axios defaults for future requests
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
-      return true;
+        localStorage.setItem("adminToken", token);
+        localStorage.setItem("adminData", JSON.stringify(admin));
+        setToken(token);
+        setAdmin(admin);
+        return true;
+      }
+      return false;
     } catch (error) {
       console.error("Login error:", error);
+      if (axios.isAxiosError(error)) {
+        console.error("Response data:", error.response?.data);
+        console.error("Response status:", error.response?.status);
+      }
       return false;
     }
-  };
-
-  const logout = () => {
+  }; const logout = () => {
     localStorage.removeItem("adminToken");
     localStorage.removeItem("adminData");
     setIsAuthenticated(false);
