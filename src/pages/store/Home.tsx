@@ -196,7 +196,7 @@ export default function Home() {
           if (product?.images && Array.isArray(product.images) && product.images.length > 0) {
             const firstImage = product.images[0];
             console.log('First image value:', firstImage, 'Type:', typeof firstImage);
-            
+
             // If it's already a full URL, use it directly
             if (typeof firstImage === 'string' && (firstImage.startsWith('http://') || firstImage.startsWith('https://'))) {
               dbImage = firstImage;
