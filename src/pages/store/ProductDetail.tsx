@@ -43,7 +43,13 @@ export default function ProductDetail() {
   });
 
   // Get properly formatted image URLs
-  const productImages = getImageUrls(product?.images || product?.image);
+  // Use image_urls from backend if available (already contains full URLs)
+  let productImages;
+  if (product?.image_urls && Array.isArray(product.image_urls) && product.image_urls.length > 0) {
+    productImages = product.image_urls; // Backend already provides full URLs
+  } else {
+    productImages = getImageUrls(product?.images || product?.image);
+  }
   const videoEmbed = getYouTubeEmbedUrl(product?.video_url);
 
   type GalleryItem = { type: 'video'; src: string } | { type: 'image'; src: string };

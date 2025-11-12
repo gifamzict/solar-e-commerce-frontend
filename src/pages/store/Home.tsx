@@ -182,8 +182,14 @@ export default function Home() {
             product.name?.toLowerCase?.().includes(key.toLowerCase())
           )?.[1] || defaultPanel;
 
-          // Build image from database paths like ProductDetail
-          const dbImage = getImageUrls(product?.images || product?.image)[0];
+          // Use image_urls from backend if available (already contains full URLs)
+          // Otherwise fall back to processing images/image field
+          let dbImage;
+          if (product?.image_urls && Array.isArray(product.image_urls) && product.image_urls.length > 0) {
+            dbImage = product.image_urls[0]; // Backend already provides full URL
+          } else {
+            dbImage = getImageUrls(product?.images || product?.image)[0];
+          }
 
           // Derive a timestamp for sorting (prefer created_at/updated_at, fallback to id)
           const ts = new Date(product?.created_at || product?.updated_at || 0).getTime() || Number(product?.id) || 0;
@@ -538,7 +544,13 @@ export default function Home() {
                     < div className = "grid md:grid-cols-2 lg:grid-cols-4 gap-6" >
                     {
                       preordersToShow.map((item: any) => {
-                        const image = getImageUrls(item?.images || item?.image_urls)?.[0] || defaultPanel;
+                        // Use image_urls from backend if available (already contains full URLs)
+                        let image;
+                        if (item?.image_urls && Array.isArray(item.image_urls) && item.image_urls.length > 0) {
+                          image = item.image_urls[0]; // Backend already provides full URL
+                        } else {
+                          image = getImageUrls(item?.images)?.[0] || defaultPanel;
+                        }
                         const price = `₦${Number(item?.preorder_price ?? 0).toLocaleString()}`;
                         const expected = item?.expected_availability_date || '-';
                         return (
