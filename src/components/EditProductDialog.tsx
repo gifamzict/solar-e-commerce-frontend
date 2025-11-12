@@ -21,6 +21,7 @@ import { Upload } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import axios from "axios";
+import { uploadMultipleImages } from "@/lib/cloudStorage";
 
 interface Category {
   id: number;
@@ -66,11 +67,26 @@ const fetchCategories = async () => {
   }
 };
 
-const updateProduct = async ({ id, formData }: { id: number; formData: FormData }) => {
+const updateProduct = async ({ id, productData }: {
+  id: number;
+  productData: {
+    name: string;
+    category_id: string;
+    price: string;
+    stock: string;
+    description: string;
+    power?: string;
+    warranty?: string;
+    specifications?: string[];
+    images?: string[];
+    video_url?: string;
+  }
+}) => {
   try {
-    const response = await axios.put(`${API_BASE_URL}products/${id}`, formData, {
+    const response = await axios.put(`${API_BASE_URL}products/${id}`, productData, {
       headers: {
-        'Content-Type': 'multipart/form-data',
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
       },
     });
     return response.data;
@@ -144,31 +160,47 @@ export function EditProductDialog({ product, isOpen, onOpenChange }: EditProduct
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !categoryId || !price || !stock || !description || !product) {
       toast.error("Please fill in all required fields.");
       return;
     }
 
-    const formData = new FormData();
-    formData.append('name', name);
-    formData.append('category_id', categoryId);
-    formData.append('price', price);
-    formData.append('stock', stock);
-    formData.append('description', description);
-    if (power) formData.append('power', power);
-    if (warranty) formData.append('warranty', warranty);
-    if (specifications) {
-      const specsArray = specifications.split('\n').filter(s => s.trim());
-      specsArray.forEach(spec => formData.append('specifications[]', spec));
-    }
-    if (videoUrl.trim()) formData.append('video_url', videoUrl.trim());
-    if (images) {
-      Array.from(images).forEach(file => formData.append('images[]', file));
-    }
+    try {
+      // Step 1: Get existing image URLs from product
+      let imageUrls: string[] = product.images || [];
 
-    updateProductMutation.mutate({ id: product.id, formData });
+      // Step 2: Upload new images to cloud storage if any
+      if (images && images.length > 0) {
+        toast.info(`Uploading ${images.length} new image(s) to cloud storage...`);
+        const newImageUrls = await uploadMultipleImages(Array.from(images));
+        imageUrls = [...imageUrls, ...newImageUrls]; // Combine existing + new
+        toast.success(`${newImageUrls.length} image(s) uploaded successfully!`);
+      }
+
+      // Step 3: Prepare product data
+      const specsArray = specifications ? specifications.split('\n').filter(s => s.trim()) : [];
+
+      const productData = {
+        name,
+        category_id: categoryId,
+        price,
+        stock,
+        description,
+        ...(power && { power }),
+        ...(warranty && { warranty }),
+        ...(specsArray.length > 0 && { specifications: specsArray }),
+        ...(imageUrls.length > 0 && { images: imageUrls }),
+        ...(videoUrl.trim() && { video_url: videoUrl.trim() }),
+      };
+
+      // Step 4: Send update to backend
+      updateProductMutation.mutate({ id: product.id, productData });
+    } catch (error) {
+      console.error('Error uploading images:', error);
+      toast.error('Failed to upload images. Please try again.');
+    }
   };
 
   return (

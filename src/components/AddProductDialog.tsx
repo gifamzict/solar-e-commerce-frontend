@@ -22,6 +22,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import axios from "axios";
 import { apiUrl, extractYouTubeId, getYouTubeEmbedUrl } from "@/lib/utils";
+import { uploadMultipleImages } from "@/lib/cloudStorage";
 
 interface Category {
   id: number;
@@ -51,11 +52,22 @@ const fetchCategories = async () => {
   }
 };
 
-const createProduct = async (formData: FormData) => {
+const createProduct = async (productData: {
+  name: string;
+  category_id: string;
+  price: string;
+  stock: string;
+  description: string;
+  power?: string;
+  warranty?: string;
+  specifications?: string[];
+  images?: string[];
+  video_url?: string;
+}) => {
   try {
-    const response = await axios.post(apiUrl('products'), formData, {
+    const response = await axios.post(apiUrl('products'), productData, {
       headers: {
-        'Content-Type': 'multipart/form-data',
+        'Content-Type': 'application/json',
         'Accept': 'application/json',
         'X-Requested-With': 'XMLHttpRequest',
       },
@@ -151,7 +163,7 @@ export function AddProductDialog({ isOpen, onOpenChange }: AddProductDialogProps
     toast.success(`${files.length} file(s) selected successfully`);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !categoryId || !price || !stock || !description) {
       toast.error("Please fill in all required fields.");
@@ -166,27 +178,38 @@ export function AddProductDialog({ isOpen, onOpenChange }: AddProductDialogProps
       }
     }
 
-    const formData = new FormData();
-    formData.append('name', name);
-    formData.append('category_id', categoryId);
-    formData.append('price', price);
-    formData.append('stock', stock);
-    formData.append('description', description);
-    if (power) formData.append('power', power);
-    if (warranty) formData.append('warranty', warranty);
-    if (specifications) {
-      const specsArray = specifications.split('\n').filter(s => s.trim());
-      specsArray.forEach(spec => formData.append('specifications[]', spec));
-    }
-    if (videoUrl.trim()) {
-      const normalized = getYouTubeEmbedUrl(videoUrl.trim()) || videoUrl.trim();
-      formData.append('video_url', normalized);
-    }
-    if (images) {
-      Array.from(images).forEach(file => formData.append('images[]', file));
-    }
+    try {
+      // Step 1: Upload images to cloud storage if any
+      let imageUrls: string[] = [];
+      if (images && images.length > 0) {
+        toast.info(`Uploading ${images.length} image(s) to cloud storage...`);
+        imageUrls = await uploadMultipleImages(Array.from(images));
+        toast.success(`${imageUrls.length} image(s) uploaded successfully!`);
+      }
 
-    createProductMutation.mutate(formData);
+      // Step 2: Prepare product data with image URLs
+      const specsArray = specifications ? specifications.split('\n').filter(s => s.trim()) : [];
+      const normalizedVideoUrl = videoUrl.trim() ? (getYouTubeEmbedUrl(videoUrl.trim()) || videoUrl.trim()) : undefined;
+
+      const productData = {
+        name,
+        category_id: categoryId,
+        price,
+        stock,
+        description,
+        ...(power && { power }),
+        ...(warranty && { warranty }),
+        ...(specsArray.length > 0 && { specifications: specsArray }),
+        ...(imageUrls.length > 0 && { images: imageUrls }),
+        ...(normalizedVideoUrl && { video_url: normalizedVideoUrl }),
+      };
+
+      // Step 3: Send product data with image URLs to backend
+      createProductMutation.mutate(productData);
+    } catch (error) {
+      console.error('Error uploading images:', error);
+      toast.error('Failed to upload images. Please try again.');
+    }
   };
 
   return (
