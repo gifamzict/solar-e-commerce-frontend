@@ -194,17 +194,22 @@ export default function Home() {
 
           // Priority 1: Check if images field contains URLs (new cloud storage format)
           if (product?.images && Array.isArray(product.images) && product.images.length > 0) {
-            const firstImage = product.images[0];
+            let firstImage = product.images[0];
             console.log('First image value:', firstImage, 'Type:', typeof firstImage);
 
-            // If it's already a full URL, use it directly
-            if (typeof firstImage === 'string' && (firstImage.startsWith('http://') || firstImage.startsWith('https://'))) {
+            // Fix: Backend incorrectly prepends storage path to cloud URLs
+            // Remove the incorrect prefix if it exists
+            if (typeof firstImage === 'string') {
+              // Check if backend added storage path to a full URL (e.g., .../storage/https://...)
+              const storageHttpsPattern = /.*\/storage\/(https?:\/\/.*)/;
+              const match = firstImage.match(storageHttpsPattern);
+              if (match && match[1]) {
+                firstImage = match[1]; // Extract the actual cloud URL
+                console.log('Extracted cloud URL from mangled path:', firstImage);
+              }
+              
               dbImage = firstImage;
-              console.log('Using cloud URL directly:', dbImage);
-            } else {
-              // Otherwise process it with getImageUrls
-              console.log('Processing with getImageUrls');
-              dbImage = getImageUrls(product.images)[0];
+              console.log('Using final URL:', dbImage);
             }
           }
           // Priority 2: Check image_urls field (backend processed URLs)
