@@ -195,11 +195,15 @@ export default function Home() {
           // Priority 1: Check if images field contains URLs (new cloud storage format)
           if (product?.images && Array.isArray(product.images) && product.images.length > 0) {
             const firstImage = product.images[0];
+            console.log('First image value:', firstImage, 'Type:', typeof firstImage);
+            
             // If it's already a full URL, use it directly
             if (typeof firstImage === 'string' && (firstImage.startsWith('http://') || firstImage.startsWith('https://'))) {
               dbImage = firstImage;
+              console.log('Using cloud URL directly:', dbImage);
             } else {
               // Otherwise process it with getImageUrls
+              console.log('Processing with getImageUrls');
               dbImage = getImageUrls(product.images)[0];
             }
           }
