@@ -25,7 +25,7 @@ const formatCurrency = (value: number, currency = "NGN") => {
   }
 };
 
-const BASE_URL = "http://127.0.0.1:8001/api/reports";
+const BASE_URL = (import.meta.env.VITE_API_BASE_URL || "https://web-production-d1120.up.railway.app/api").replace(/\/$/, "") + "/reports";
 
 // Color palette aligning with CSS vars fallbacks
 const PIE_COLORS = [
@@ -252,223 +252,242 @@ export default function Analytics() {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Reports & Analytics</h1>
-          <p className="text-muted-foreground mt-1">Insights and performance metrics</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <label htmlFor="period" className="text-sm text-muted-foreground">Period</label>
-          <select
-            id="period"
-            className="border rounded-md px-2 py-1 text-sm bg-background"
-            value={period}
-            onChange={(e) => setPeriod(e.target.value)}
-          >
-            <option value="7d">Last 7 days</option>
-            <option value="30d">Last 30 days</option>
-            <option value="90d">Last 90 days</option>
-            <option value="1y">Last Year</option>
-          </select>
-        </div>
-      </div>
-
-      {/* KPI Cards (Overview) */}
-      {overview && (
-        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Today's Revenue</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {formatCurrency(Number(overview?.today?.revenue || 0))}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Today's Orders</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {Number(overview?.today?.orders || 0).toLocaleString()}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">This Week's Revenue</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {formatCurrency(Number(overview?.this_week?.revenue || 0))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {error && (
-        <Card className="border-destructive">
-          <CardHeader>
-            <CardTitle className="text-destructive">Failed to load</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">{error}</p>
-          </CardContent>
-        </Card>
-      )}
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card className="col-span-2">
-          <CardHeader>
-            <CardTitle>Sales Trend</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="mb-3 flex flex-wrap gap-2">
-              <button
-                className="px-3 py-1 text-xs rounded-md bg-primary text-primary-foreground"
-                onClick={() => exportData("sales_trend", "csv")}
-              >
-                Export CSV
-              </button>
-            </div>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={salesTrend}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis dataKey="period" />
-                <YAxis />
-                <Tooltip formatter={(v: any, n: any) => formatCurrency(Number(v))} />
-                <Legend />
-                <Line type="monotone" dataKey="total_revenue" stroke="hsl(var(--chart-1))" strokeWidth={3} name="Total Revenue" />
-                <Line type="monotone" dataKey="order_revenue" stroke="hsl(var(--chart-2))" strokeWidth={2} name="Order Revenue" />
-                <Line type="monotone" dataKey="preorder_revenue" stroke="hsl(var(--chart-3))" strokeWidth={2} name="Pre-order Revenue" />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Sales by Category</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="mb-3 flex flex-wrap gap-2">
-              <button
-                className="px-3 py-1 text-xs rounded-md bg-primary text-primary-foreground"
-                onClick={() => exportData("category_sales", "csv")}
-              >
-                Export CSV
-              </button>
-            </div>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={categoryWithColors}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percentage, value }: any) => `${name} ${percentage != null ? percentage : ((value / (categoryWithColors.reduce((s, c) => s + (c.value || 0), 0) || 1)) * 100).toFixed(0)}% (${formatCurrency(value)})`}
-                  outerRadius={100}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {categoryWithColors.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={(entry as any).color} />
-                  ))}
-                </Pie>
-                <Tooltip formatter={(v: any, _n: any, ctx: any) => {
-                  const payload = ctx?.payload ?? {};
-                  const orders = payload?.orders_count != null ? payload.orders_count : 0;
-                  const preorders = payload?.preorders_count != null ? payload.preorders_count : 0;
-                  return [`${formatCurrency(Number(v))}`, `Orders: ${orders}, Pre-orders: ${preorders}`];
-                }} />
-              </PieChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Customer Segments</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={customerInsights}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis dataKey="segment" />
-                <YAxis />
-                <Tooltip formatter={(v: any) => [v, "Customers"]} />
-                <Bar dataKey="customers" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between w-full">
-            <CardTitle>Top Products</CardTitle>
-            <div className="flex gap-2">
-              <button
-                className="px-3 py-1 text-xs rounded-md bg-primary text-primary-foreground"
-                onClick={() => exportData("top_products", "csv")}
-              >
-                Export CSV
-              </button>
-            </div>
+    <div className= "space-y-6 animate-fade-in" >
+    <div className="flex items-center justify-between gap-4" >
+      <div>
+      <h1 className="text-3xl font-bold tracking-tight" > Reports & Analytics </h1>
+        < p className = "text-muted-foreground mt-1" > Insights and performance metrics </p>
           </div>
-        </CardHeader>
-        <CardContent>
-          {topProductsError && (
-            <p className="text-sm text-destructive mb-2">{topProductsError}</p>
-          )}
-          {loading ? (
-            <p className="text-sm text-muted-foreground">Loading...</p>
-          ) : (
-            <div className="space-y-4">
-              {topProducts.map((product, index) => (
-                <div key={`${product.id ?? product.name}-${index}`} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div className="flex-1">
-                    <p className="font-medium flex items-center gap-2">
-                      <span>{product.name}</span>
-                      {product.type && (
-                        <span className={`text-xs px-2 py-0.5 rounded-full border ${product.type === 'pre-order' ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200'}`}>
-                          {product.type}
-                        </span>
-                      )}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {product.units != null ? `${product.units} units sold` : ""}
-                      {(product.orders_count != null || product.preorders_count != null) && (
-                        <>
-                          {product.units != null ? " • " : ""}
-                          {`${product.orders_count ?? 0} orders, ${product.preorders_count ?? 0} pre-orders`}
-                        </>
-                      )}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-semibold">{formatCurrency(product.total_revenue)}</p>
-                  </div>
-                </div>
-              ))}
-              {topProducts.length === 0 && !topProductsError && (
-                <p className="text-sm text-muted-foreground">No product data available.</p>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+          < div className = "flex items-center gap-2" >
+            <label htmlFor="period" className = "text-sm text-muted-foreground" > Period </label>
+              < select
+  id = "period"
+  className = "border rounded-md px-2 py-1 text-sm bg-background"
+  value = { period }
+  onChange = {(e) => setPeriod(e.target.value)
+}
+          >
+  <option value="7d" > Last 7 days </option>
+    < option value = "30d" > Last 30 days </option>
+      < option value = "90d" > Last 90 days </option>
+        < option value = "1y" > Last Year </option>
+          </select>
+          </div>
+          </div>
 
-      {loading && !error && (
-        <p className="text-sm text-muted-foreground">Loading analytics...</p>
+{/* KPI Cards (Overview) */ }
+{
+  overview && (
+    <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" >
+      <Card>
+      <CardHeader>
+      <CardTitle className="text-base" > Today's Revenue</CardTitle>
+        </CardHeader>
+        < CardContent >
+        <div className="text-2xl font-bold" >
+          { formatCurrency(Number(overview?.today?.revenue || 0))
+}
+</div>
+  </CardContent>
+  </Card>
+
+  < Card >
+  <CardHeader>
+  <CardTitle className="text-base" > Today's Orders</CardTitle>
+    </CardHeader>
+    < CardContent >
+    <div className="text-2xl font-bold" >
+      { Number(overview?.today?.orders || 0).toLocaleString()}
+</div>
+  </CardContent>
+  </Card>
+
+  < Card >
+  <CardHeader>
+  <CardTitle className="text-base" > This Week's Revenue</CardTitle>
+    </CardHeader>
+    < CardContent >
+    <div className="text-2xl font-bold" >
+      { formatCurrency(Number(overview?.this_week?.revenue || 0))}
+</div>
+  </CardContent>
+  </Card>
+  </div>
       )}
+
+{
+  error && (
+    <Card className="border-destructive" >
+      <CardHeader>
+      <CardTitle className="text-destructive" > Failed to load </CardTitle>
+        </CardHeader>
+        < CardContent >
+        <p className="text-sm text-muted-foreground" > { error } </p>
+          </CardContent>
+          </Card>
+      )
+}
+
+<div className="grid gap-4 md:grid-cols-2" >
+  <Card className="col-span-2" >
+    <CardHeader>
+    <CardTitle>Sales Trend </CardTitle>
+      </CardHeader>
+      < CardContent >
+      <div className="mb-3 flex flex-wrap gap-2" >
+        <button
+                className="px-3 py-1 text-xs rounded-md bg-primary text-primary-foreground"
+onClick = {() => exportData("sales_trend", "csv")}
+              >
+  Export CSV
+    </button>
     </div>
+    < ResponsiveContainer width = "100%" height = { 300} >
+      <LineChart data={ salesTrend }>
+        <CartesianGrid strokeDasharray="3 3" className = "stroke-muted" />
+          <XAxis dataKey="period" />
+            <YAxis />
+            < Tooltip formatter = {(v: any, n: any) => formatCurrency(Number(v))} />
+              < Legend />
+              <Line type="monotone" dataKey = "total_revenue" stroke = "hsl(var(--chart-1))" strokeWidth = { 3} name = "Total Revenue" />
+                <Line type="monotone" dataKey = "order_revenue" stroke = "hsl(var(--chart-2))" strokeWidth = { 2} name = "Order Revenue" />
+                  <Line type="monotone" dataKey = "preorder_revenue" stroke = "hsl(var(--chart-3))" strokeWidth = { 2} name = "Pre-order Revenue" />
+                    </LineChart>
+                    </ResponsiveContainer>
+                    </CardContent>
+                    </Card>
+
+                    < Card >
+                    <CardHeader>
+                    <CardTitle>Sales by Category </CardTitle>
+                      </CardHeader>
+                      < CardContent >
+                      <div className="mb-3 flex flex-wrap gap-2" >
+                        <button
+                className="px-3 py-1 text-xs rounded-md bg-primary text-primary-foreground"
+onClick = {() => exportData("category_sales", "csv")}
+              >
+  Export CSV
+    </button>
+    </div>
+    < ResponsiveContainer width = "100%" height = { 300} >
+      <PieChart>
+      <Pie
+                  data={ categoryWithColors }
+cx = "50%"
+cy = "50%"
+labelLine = { false}
+label = {({ name, percentage, value }: any) => `${name} ${percentage != null ? percentage : ((value / (categoryWithColors.reduce((s, c) => s + (c.value || 0), 0) || 1)) * 100).toFixed(0)}% (${formatCurrency(value)})`}
+outerRadius = { 100}
+fill = "#8884d8"
+dataKey = "value"
+  >
+{
+  categoryWithColors.map((entry, index) => (
+    <Cell key= {`cell-${index}`} fill = {(entry as any).color} />
+                  ))}
+</Pie>
+  < Tooltip formatter = {(v: any, _n: any, ctx: any) => {
+  const payload = ctx?.payload ?? {};
+  const orders = payload?.orders_count != null ? payload.orders_count : 0;
+  const preorders = payload?.preorders_count != null ? payload.preorders_count : 0;
+  return [`${formatCurrency(Number(v))}`, `Orders: ${orders}, Pre-orders: ${preorders}`];
+}} />
+  </PieChart>
+  </ResponsiveContainer>
+  </CardContent>
+  </Card>
+
+  < Card >
+  <CardHeader>
+  <CardTitle>Customer Segments </CardTitle>
+    </CardHeader>
+    < CardContent >
+    <ResponsiveContainer width="100%" height = { 300} >
+      <BarChart data={ customerInsights }>
+        <CartesianGrid strokeDasharray="3 3" className = "stroke-muted" />
+          <XAxis dataKey="segment" />
+            <YAxis />
+            < Tooltip formatter = {(v: any) => [v, "Customers"]} />
+              < Bar dataKey = "customers" fill = "hsl(var(--chart-1))" radius = { [4, 4, 0, 0]} />
+                </BarChart>
+                </ResponsiveContainer>
+                </CardContent>
+                </Card>
+                </div>
+
+                < Card >
+                <CardHeader>
+                <div className="flex items-center justify-between w-full" >
+                  <CardTitle>Top Products </CardTitle>
+                    < div className = "flex gap-2" >
+                      <button
+                className="px-3 py-1 text-xs rounded-md bg-primary text-primary-foreground"
+onClick = {() => exportData("top_products", "csv")}
+              >
+  Export CSV
+    </button>
+    </div>
+    </div>
+    </CardHeader>
+    <CardContent>
+{
+  topProductsError && (
+    <p className="text-sm text-destructive mb-2" > { topProductsError } </p>
+          )
+}
+{
+  loading ? (
+    <p className= "text-sm text-muted-foreground" > Loading...</p>
+          ) : (
+    <div className= "space-y-4" >
+    {
+      topProducts.map((product, index) => (
+        <div key= {`${product.id ?? product.name}-${index}`} className = "flex items-center justify-between p-3 border rounded-lg" >
+          <div className="flex-1" >
+            <p className="font-medium flex items-center gap-2" >
+              <span>{ product.name } </span>
+  {
+    product.type && (
+      <span className={ `text-xs px-2 py-0.5 rounded-full border ${product.type === 'pre-order' ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200'}` }>
+        { product.type }
+        </span>
+                      )
+  }
+  </p>
+    < p className = "text-sm text-muted-foreground" >
+      { product.units != null ? `${product.units} units sold` : "" }
+  {
+    (product.orders_count != null || product.preorders_count != null) && (
+      <>
+      { product.units != null ? " • " : "" }
+                          { `${product.orders_count ?? 0} orders, ${product.preorders_count ?? 0} pre-orders` }
+    </>
+                      )
+  }
+  </p>
+    </div>
+    < div className = "text-right" >
+      <p className="font-semibold" > { formatCurrency(product.total_revenue) } </p>
+        </div>
+        </div>
+              ))
+}
+{
+  topProducts.length === 0 && !topProductsError && (
+    <p className="text-sm text-muted-foreground" > No product data available.</p>
+              )
+}
+</div>
+          )}
+</CardContent>
+  </Card>
+
+{
+  loading && !error && (
+    <p className="text-sm text-muted-foreground" > Loading analytics...</p>
+      )
+}
+</div>
   );
 }

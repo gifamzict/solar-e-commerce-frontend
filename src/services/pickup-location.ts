@@ -21,7 +21,7 @@ export interface PickupLocation {
 export type CreatePickupLocationInput = Omit<PickupLocation, "id" | "created_at" | "updated_at">;
 export type UpdatePickupLocationInput = Partial<CreatePickupLocationInput>;
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api").replace(/\/$/, "");
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "https://web-production-d1120.up.railway.app/api").replace(/\/$/, "");
 
 export async function fetchPickupLocations(): Promise<PickupLocation[]> {
   try {

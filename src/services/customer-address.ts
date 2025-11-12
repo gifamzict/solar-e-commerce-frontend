@@ -30,7 +30,7 @@ export type CustomerAddressInput = {
   is_default?: boolean;
 };
 
-const BASE = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api';
+const BASE = import.meta.env.VITE_API_BASE_URL || 'https://web-production-d1120.up.railway.app/api';
 
 function authHeaders() {
   const token = typeof localStorage !== 'undefined' ? localStorage.getItem('store_token') : null;

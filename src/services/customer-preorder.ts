@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api').replace(/\/$/, '');
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'https://web-production-d1120.up.railway.app/api').replace(/\/$/, '');
 const CUSTOMER_PREORDERS_PATH = 'customer-pre-orders';
 
 function buildUrl(path: string) {
@@ -92,14 +92,12 @@ export async function getAvailablePreorder(preOrderId: number | string) {
   return normalizePreorderItem(data);
 }
 
-export async function placeCustomerPreorder(payload: PlaceCustomerPreorderPayload): Promise<{ success: boolean; data: CustomerPreOrder; message?: string; }>
-{
+export async function placeCustomerPreorder(payload: PlaceCustomerPreorderPayload): Promise<{ success: boolean; data: CustomerPreOrder; message?: string; }> {
   const res = await axios.post(buildUrl(`${CUSTOMER_PREORDERS_PATH}/place`), payload);
   return res.data;
 }
 
-export async function initializeCustomerPreorderPayment(args: { customer_pre_order_id: number | string; payment_type: PaymentType; callback_url?: string; }): Promise<{ success: boolean; data: { authorization_url: string; access_code: string; reference: string; amount: number; payment_type: PaymentType; }; message?: string; }>
-{
+export async function initializeCustomerPreorderPayment(args: { customer_pre_order_id: number | string; payment_type: PaymentType; callback_url?: string; }): Promise<{ success: boolean; data: { authorization_url: string; access_code: string; reference: string; amount: number; payment_type: PaymentType; }; message?: string; }> {
   try {
     const res = await axios.post(buildUrl(`${CUSTOMER_PREORDERS_PATH}/initialize-payment`), args);
     return res.data;
@@ -112,8 +110,7 @@ export async function initializeCustomerPreorderPayment(args: { customer_pre_ord
   }
 }
 
-export async function verifyCustomerPreorderPayment(reference: string): Promise<{ success: boolean; data: CustomerPreOrder; message?: string; }>
-{
+export async function verifyCustomerPreorderPayment(reference: string): Promise<{ success: boolean; data: CustomerPreOrder; message?: string; }> {
   try {
     const res = await axios.post(buildUrl(`${CUSTOMER_PREORDERS_PATH}/verify-payment`), { reference });
     return res.data;
@@ -131,14 +128,12 @@ export interface InitCustomerPreorderSessionArgs extends PlaceCustomerPreorderPa
   callback_url?: string;
 }
 
-export async function initializeCustomerPreorderPaymentSession(args: InitCustomerPreorderSessionArgs): Promise<{ success: boolean; data: { authorization_url: string; access_code: string; reference: string; amount: number; payment_type: PaymentType; product_name?: string; customer_name?: string; }; message?: string; }>
-{
+export async function initializeCustomerPreorderPaymentSession(args: InitCustomerPreorderSessionArgs): Promise<{ success: boolean; data: { authorization_url: string; access_code: string; reference: string; amount: number; payment_type: PaymentType; product_name?: string; customer_name?: string; }; message?: string; }> {
   const res = await axios.post(buildUrl(`${CUSTOMER_PREORDERS_PATH}/initialize-payment-session`), args);
   return res.data;
 }
 
-export async function verifyCustomerPreorderPaymentAndCreate(reference: string): Promise<{ success: boolean; data: CustomerPreOrder; message?: string; }>
-{
+export async function verifyCustomerPreorderPaymentAndCreate(reference: string): Promise<{ success: boolean; data: CustomerPreOrder; message?: string; }> {
   const res = await axios.post(buildUrl(`${CUSTOMER_PREORDERS_PATH}/verify-payment-and-create`), { reference });
   return res.data;
 }

@@ -9,7 +9,7 @@ export function cn(...inputs: ClassValue[]) {
  * Constructs a proper image URL from the backend storage path
  * Handles cases where the path may or may not start with a slash
  * @param imagePath - The image path from the backend (e.g., "/path/to/image.jpg" or "path/to/image.jpg")
- * @param baseUrl - The base URL of the backend (default: from env or localhost:8000)
+ * @param baseUrl - The base URL of the backend (default: from env or production Railway URL)
  * @returns Full URL to the image
  */
 export function getImageUrl(imagePath: string | undefined | null, baseUrl?: string): string {
@@ -29,11 +29,11 @@ export function getImageUrl(imagePath: string | undefined | null, baseUrl?: stri
   }
 
   // Get base URL from parameter or environment variable
-  const apiBaseUrl = baseUrl || import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/';
-  
+  const apiBaseUrl = baseUrl || import.meta.env.VITE_API_BASE_URL || 'https://web-production-d1120.up.railway.app/api';
+
   // Remove /api/ from the end if present to get the base domain
   const backendBaseUrl = apiBaseUrl.replace(/\/api\/?$/, '');
-  
+
   // Construct the full URL ensuring proper path structure
   return `${backendBaseUrl}/storage/${imagePath}`;
 }
@@ -50,10 +50,10 @@ export function getImageUrls(images: string | string[] | undefined | null, baseU
   }
 
   const imageArray = Array.isArray(images) ? images : [images];
-  
+
   // Filter out any empty strings or null values
   const validImages = imageArray.filter(img => img && img.trim().length > 0);
-  
+
   // If no valid images, return placeholder
   if (validImages.length === 0) {
     return ['/placeholder.svg'];
@@ -96,7 +96,7 @@ export function ensureNairaSymbol(text: string): string {
 }
 
 export function apiUrl(path: string): string {
-  const base = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api';
+  const base = import.meta.env.VITE_API_BASE_URL || 'https://web-production-d1120.up.railway.app/api';
   const cleanBase = String(base).replace(/\/?$/, '');
   const cleanPath = String(path).replace(/^\//, '');
   return `${cleanBase}/${cleanPath}`;

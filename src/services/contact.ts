@@ -1,7 +1,7 @@
 // filepath: /Users/gifamz/Desktop/G-TechSolar/gifamz-admin-dash/src/services/contact.ts
 import axios from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://web-production-d1120.up.railway.app/api";
 
 export interface ContactFormPayload {
   full_name: string;

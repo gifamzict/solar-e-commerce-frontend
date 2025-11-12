@@ -28,7 +28,7 @@ interface EditCategoryDialogProps {
 }
 
 // Define the base URL from environment variables
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://web-production-d1120.up.railway.app/api/';
 
 // API function to update category
 const updateCategory = async ({ id, categoryData }: { id: number; categoryData: { name: string; slug: string; description: string } }) => {
@@ -84,56 +84,57 @@ export function EditCategoryDialog({ category, isOpen, onOpenChange }: EditCateg
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+    <Dialog open= { isOpen } onOpenChange = { onOpenChange } >
+      <DialogContent className="max-w-lg" >
         <DialogHeader>
-          <DialogTitle>Edit Category</DialogTitle>
+        <DialogTitle>Edit Category </DialogTitle>
           <DialogDescription>
             Update the category details
-          </DialogDescription>
-        </DialogHeader>
-        <form className="space-y-4 mt-4" onSubmit={handleSubmit}>
-          <div className="space-y-2">
-            <Label htmlFor="edit-cat-name">Category Name *</Label>
-            <Input
-              id="edit-cat-name"
-              placeholder="e.g., Solar Panels"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+    </DialogDescription>
+    </DialogHeader>
+    < form className = "space-y-4 mt-4" onSubmit = { handleSubmit } >
+      <div className="space-y-2" >
+        <Label htmlFor="edit-cat-name" > Category Name * </Label>
+          < Input
+  id = "edit-cat-name"
+  placeholder = "e.g., Solar Panels"
+  value = { name }
+  onChange = {(e) => setName(e.target.value)
+}
             />
-          </div>
+  </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="edit-cat-slug">URL Slug *</Label>
-            <Input
-              id="edit-cat-slug"
-              placeholder="e.g., solar-panels"
-              value={slug}
-              onChange={(e) => setSlug(e.target.value)}
+  < div className = "space-y-2" >
+    <Label htmlFor="edit-cat-slug" > URL Slug * </Label>
+      < Input
+id = "edit-cat-slug"
+placeholder = "e.g., solar-panels"
+value = { slug }
+onChange = {(e) => setSlug(e.target.value)}
             />
-          </div>
+  </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="edit-cat-desc">Description</Label>
-            <Textarea
-              id="edit-cat-desc"
-              placeholder="Brief description of this category..."
-              rows={3}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+  < div className = "space-y-2" >
+    <Label htmlFor="edit-cat-desc" > Description </Label>
+      < Textarea
+id = "edit-cat-desc"
+placeholder = "Brief description of this category..."
+rows = { 3}
+value = { description }
+onChange = {(e) => setDescription(e.target.value)}
             />
-          </div>
+  </div>
 
-          <div className="flex justify-end gap-3 pt-4">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={updateCategoryMutation.isPending}>
-              {updateCategoryMutation.isPending ? "Updating..." : "Update Category"}
-            </Button>
-          </div>
+  < div className = "flex justify-end gap-3 pt-4" >
+    <Button type="button" variant = "outline" onClick = {() => onOpenChange(false)}>
+      Cancel
+      </Button>
+      < Button type = "submit" disabled = { updateCategoryMutation.isPending } >
+        { updateCategoryMutation.isPending ? "Updating..." : "Update Category" }
+        </Button>
+        </div>
         </form>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+        </Dialog>
   );
 }

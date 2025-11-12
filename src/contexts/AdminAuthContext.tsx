@@ -24,7 +24,7 @@ interface AdminAuthContextType {
 
 const AdminAuthContext = createContext<AdminAuthContextType | undefined>(undefined);
 
-const API_URL = "http://127.0.0.1:8000/api";
+const API_URL = import.meta.env.VITE_API_BASE_URL || "https://web-production-d1120.up.railway.app/api";
 
 const useAdminAuth = () => {
   const context = useContext(AdminAuthContext);
@@ -51,18 +51,18 @@ const AdminAuthProvider = ({ children }: { children: ReactNode }) => {
       });
 
       const { token, admin: adminData } = response.data;
-      
+
       // Store token and admin data
       localStorage.setItem("adminToken", token);
       localStorage.setItem("adminData", JSON.stringify(adminData));
-      
+
       // Update state
       setIsAuthenticated(true);
       setAdmin(adminData);
-      
+
       // Configure axios defaults for future requests
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-      
+
       return true;
     } catch (error) {
       console.error("Login error:", error);
@@ -87,9 +87,10 @@ const AdminAuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <AdminAuthContext.Provider value={{ isAuthenticated, admin, login, logout }}>
-      {children}
-    </AdminAuthContext.Provider>
+    <AdminAuthContext.Provider value= {{ isAuthenticated, admin, login, logout }
+}>
+  { children }
+  </AdminAuthContext.Provider>
   );
 };
 

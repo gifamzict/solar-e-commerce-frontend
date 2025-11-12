@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api/";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://web-production-d1120.up.railway.app/api/";
 
 export function AddAdminDialog() {
   const [isOpen, setIsOpen] = useState(false);
@@ -65,98 +65,100 @@ export function AddAdminDialog() {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" />
+    <Dialog open= { isOpen } onOpenChange = { setIsOpen } >
+      <DialogTrigger asChild >
+      <Button className="gap-2" >
+        <Plus className="h-4 w-4" />
           Add Admin User
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-lg">
-        <DialogHeader>
-          <DialogTitle>Add New Admin User</DialogTitle>
-          <DialogDescription>
-            Create a new administrator account for your solar business
-          </DialogDescription>
-        </DialogHeader>
-        <form className="space-y-4 mt-4" onSubmit={handleSubmit}>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="first_name">First Name *</Label>
-              <Input id="first_name" placeholder="John" value={formData.first_name} onChange={handleInputChange} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="last_name">Last Name *</Label>
-              <Input id="last_name" placeholder="Doe" value={formData.last_name} onChange={handleInputChange} />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="email">Email Address *</Label>
-            <Input id="email" type="email" placeholder="john@solarglow.com" value={formData.email} onChange={handleInputChange} />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="phone_number">Phone Number</Label>
-            <Input id="phone_number" type="tel" placeholder="+234 801 234 5678" value={formData.phone_number} onChange={handleInputChange} />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="role">Role *</Label>
-            <Select onValueChange={(value) => setFormData({ ...formData, role: value })}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select role" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="admin">Admin</SelectItem>
-                <SelectItem value="manager">Manager</SelectItem>
-                <SelectItem value="staff">Staff</SelectItem>
-                <SelectItem value="viewer">Viewer</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="password">Password *</Label>
-              <Input id="password" type="password" placeholder="••••••••" value={formData.password} onChange={handleInputChange} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password_confirmation">Confirm Password *</Label>
-              <Input id="password_confirmation" type="password" placeholder="••••••••" value={formData.password_confirmation} onChange={handleInputChange} />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Permissions</Label>
-            <div className="space-y-2 border rounded-md p-4">
-              {[
-                "Manage Products",
-                "Manage Orders",
-                "Manage Customers",
-                "View Analytics",
-              ].map((permission) => (
-                <label key={permission} className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    className="rounded"
-                    checked={formData.permissions.includes(permission)}
-                    onChange={() => handleCheckboxChange(permission)}
-                  />
-                  <span className="text-sm">{permission}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex justify-end gap-3 pt-4">
-            <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
-              Cancel
             </Button>
-            <Button type="submit">Create Admin User</Button>
-          </div>
+            </DialogTrigger>
+            < DialogContent className = "max-w-lg" >
+              <DialogHeader>
+              <DialogTitle>Add New Admin User </DialogTitle>
+                <DialogDescription>
+            Create a new administrator account for your solar business
+    </DialogDescription>
+    </DialogHeader>
+    < form className = "space-y-4 mt-4" onSubmit = { handleSubmit } >
+      <div className="grid grid-cols-2 gap-4" >
+        <div className="space-y-2" >
+          <Label htmlFor="first_name" > First Name * </Label>
+            < Input id = "first_name" placeholder = "John" value = { formData.first_name } onChange = { handleInputChange } />
+              </div>
+              < div className = "space-y-2" >
+                <Label htmlFor="last_name" > Last Name * </Label>
+                  < Input id = "last_name" placeholder = "Doe" value = { formData.last_name } onChange = { handleInputChange } />
+                    </div>
+                    </div>
+
+                    < div className = "space-y-2" >
+                      <Label htmlFor="email" > Email Address * </Label>
+                        < Input id = "email" type = "email" placeholder = "john@solarglow.com" value = { formData.email } onChange = { handleInputChange } />
+                          </div>
+
+                          < div className = "space-y-2" >
+                            <Label htmlFor="phone_number" > Phone Number </Label>
+                              < Input id = "phone_number" type = "tel" placeholder = "+234 801 234 5678" value = { formData.phone_number } onChange = { handleInputChange } />
+                                </div>
+
+                                < div className = "space-y-2" >
+                                  <Label htmlFor="role" > Role * </Label>
+                                    < Select onValueChange = {(value) => setFormData({ ...formData, role: value })
+}>
+  <SelectTrigger>
+  <SelectValue placeholder="Select role" />
+    </SelectTrigger>
+    < SelectContent >
+    <SelectItem value="admin" > Admin </SelectItem>
+      < SelectItem value = "manager" > Manager </SelectItem>
+        < SelectItem value = "staff" > Staff </SelectItem>
+          < SelectItem value = "viewer" > Viewer </SelectItem>
+            </SelectContent>
+            </Select>
+            </div>
+
+            < div className = "grid grid-cols-2 gap-4" >
+              <div className="space-y-2" >
+                <Label htmlFor="password" > Password * </Label>
+                  < Input id = "password" type = "password" placeholder = "••••••••" value = { formData.password } onChange = { handleInputChange } />
+                    </div>
+                    < div className = "space-y-2" >
+                      <Label htmlFor="password_confirmation" > Confirm Password * </Label>
+                        < Input id = "password_confirmation" type = "password" placeholder = "••••••••" value = { formData.password_confirmation } onChange = { handleInputChange } />
+                          </div>
+                          </div>
+
+                          < div className = "space-y-2" >
+                            <Label>Permissions </Label>
+                            < div className = "space-y-2 border rounded-md p-4" >
+                              {
+                                [
+                                  "Manage Products",
+                                  "Manage Orders",
+                                  "Manage Customers",
+                                  "View Analytics",
+              ].map((permission) => (
+                                    <label key= { permission } className = "flex items-center gap-2" >
+                                    <input
+                    type="checkbox"
+                    className = "rounded"
+                    checked = { formData.permissions.includes(permission) }
+                    onChange = {() => handleCheckboxChange(permission)}
+                              />
+                              <span className="text-sm" > { permission } </span>
+                                </label>
+              ))}
+</div>
+  </div>
+
+  < div className = "flex justify-end gap-3 pt-4" >
+    <Button type="button" variant = "outline" onClick = {() => setIsOpen(false)}>
+      Cancel
+      </Button>
+      < Button type = "submit" > Create Admin User </Button>
+        </div>
         </form>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+        </Dialog>
   );
 }

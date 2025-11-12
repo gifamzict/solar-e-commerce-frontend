@@ -33,7 +33,7 @@ export default function Customers() {
   });
 
   // Define the base URL from environment variables
-  const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api') + '/';
+  const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'https://web-production-d1120.up.railway.app/api') + '/';
 
   useEffect(() => {
     const fetchCustomers = async () => {
@@ -54,102 +54,105 @@ export default function Customers() {
   );
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Customers Management</h1>
-        <p className="text-muted-foreground mt-1">View and manage customer information</p>
-      </div>
+    <div className= "space-y-6 animate-fade-in" >
+    <div>
+    <h1 className="text-3xl font-bold tracking-tight" > Customers Management </h1>
+      < p className = "text-muted-foreground mt-1" > View and manage customer information </p>
+        </div>
 
-      <div className="grid gap-4 md:grid-cols-4">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Total Customers</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{customersData.total_customers}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Active</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{customersData.active_customers}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">VIP</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{customersData.vip_customers}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">New This Month</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{customersData.new_this_month}</div>
-          </CardContent>
-        </Card>
-      </div>
+        < div className = "grid gap-4 md:grid-cols-4" >
+          <Card>
+          <CardHeader className="pb-3" >
+            <CardTitle className="text-sm font-medium" > Total Customers </CardTitle>
+              </CardHeader>
+              < CardContent >
+              <div className="text-2xl font-bold" > { customersData.total_customers } </div>
+                </CardContent>
+                </Card>
+                < Card >
+                <CardHeader className="pb-3" >
+                  <CardTitle className="text-sm font-medium" > Active </CardTitle>
+                    </CardHeader>
+                    < CardContent >
+                    <div className="text-2xl font-bold" > { customersData.active_customers } </div>
+                      </CardContent>
+                      </Card>
+                      < Card >
+                      <CardHeader className="pb-3" >
+                        <CardTitle className="text-sm font-medium" > VIP </CardTitle>
+                          </CardHeader>
+                          < CardContent >
+                          <div className="text-2xl font-bold" > { customersData.vip_customers } </div>
+                            </CardContent>
+                            </Card>
+                            < Card >
+                            <CardHeader className="pb-3" >
+                              <CardTitle className="text-sm font-medium" > New This Month </CardTitle>
+                                </CardHeader>
+                                < CardContent >
+                                <div className="text-2xl font-bold" > { customersData.new_this_month } </div>
+                                  </CardContent>
+                                  </Card>
+                                  </div>
 
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
+                                  < div className = "relative" >
+                                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                      <Input
           placeholder="Search customers..."
-          className="pl-10"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+  className = "pl-10"
+  value = { searchQuery }
+  onChange = {(e) => setSearchQuery(e.target.value)
+}
         />
-      </div>
+  </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>All Customers ({filteredCustomers.length})</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Customer</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Joined</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredCustomers.map((customer) => (
-                <TableRow key={customer.id} className="hover:bg-muted/50 transition-colors">
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <Avatar>
-                        <AvatarFallback>{customer.name.split(" ").map((n) => n[0]).join("")}</AvatarFallback>
-                      </Avatar>
-                      <span className="font-medium">{customer.name}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">{customer.email}</TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {new Date(customer.created_at).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
-                      <Button variant="ghost" size="icon">
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon">
-                        <Mail className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-    </div>
+  < Card >
+  <CardHeader>
+  <CardTitle>All Customers({ filteredCustomers.length }) </CardTitle>
+    </CardHeader>
+    < CardContent >
+    <Table>
+    <TableHeader>
+    <TableRow>
+    <TableHead>Customer </TableHead>
+    < TableHead > Email </TableHead>
+    < TableHead > Joined </TableHead>
+    < TableHead className = "text-right" > Actions </TableHead>
+      </TableRow>
+      </TableHeader>
+      <TableBody>
+{
+  filteredCustomers.map((customer) => (
+    <TableRow key= { customer.id } className = "hover:bg-muted/50 transition-colors" >
+    <TableCell>
+    <div className="flex items-center gap-3" >
+    <Avatar>
+    <AvatarFallback>{ customer.name.split(" ").map((n) => n[0]).join("") } </AvatarFallback>
+    </Avatar>
+  < span className = "font-medium" > { customer.name } </span>
+  </div>
+  </TableCell>
+  < TableCell className = "text-muted-foreground" > { customer.email } </TableCell>
+  < TableCell className = "text-muted-foreground" >
+  { new Date(customer.created_at).toLocaleDateString() }
+  </TableCell>
+  < TableCell className = "text-right" >
+  <div className="flex justify-end gap-2" >
+  <Button variant="ghost" size = "icon" >
+  <Eye className="h-4 w-4" />
+  </Button>
+  < Button variant = "ghost" size = "icon" >
+  <Mail className="h-4 w-4" />
+  </Button>
+  </div>
+  </TableCell>
+  </TableRow>
+  ))
+}
+</TableBody>
+  </Table>
+  </CardContent>
+  </Card>
+  </div>
   );
 }

@@ -20,7 +20,7 @@ export interface DashboardOverviewResponse {
   recent_preorders?: any[];
 }
 
-const BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api').replace(/\/?$/, '');
+const BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'https://web-production-d1120.up.railway.app/api').replace(/\/?$/, '');
 
 function pickData(payload: any): DashboardOverviewResponse {
   // Some backends wrap data under { success, data }

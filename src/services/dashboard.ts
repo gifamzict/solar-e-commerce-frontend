@@ -1,5 +1,6 @@
 // filepath: /Users/gifamz/Desktop/G-TechSolar/gifamz-admin-dash/src/services/dashboard.ts
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api';
+import axios from "axios";
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://web-production-d1120.up.railway.app/api';
 
 export interface CategorySalesItem {
   category: string;

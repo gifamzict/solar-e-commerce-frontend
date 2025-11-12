@@ -1,6 +1,6 @@
-import axios from 'axios';
+import axios from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://web-production-d1120.up.railway.app/api';
 
 export interface OrderItem {
   id: number;
@@ -30,28 +30,28 @@ export interface Order {
 }
 
 export interface PaginatedOrders {
-    orders: {
-        id: number;
-        order_number: string;
-        customer_name: string;
-        formatted_date: string;
-        formatted_total: string;
-        status: string;
-        items_count: number;
-    }[];
-    pagination: {
-        total: number;
-        per_page: number;
-        current_page: number;
-        last_page: number;
-    };
+  orders: {
+    id: number;
+    order_number: string;
+    customer_name: string;
+    formatted_date: string;
+    formatted_total: string;
+    status: string;
+    items_count: number;
+  }[];
+  pagination: {
+    total: number;
+    per_page: number;
+    current_page: number;
+    last_page: number;
+  };
 }
 
 export interface OrderStatistics {
-    total_revenue: number;
-    total_orders: number;
-    pending_orders: number;
-    shipped_orders: number;
+  total_revenue: number;
+  total_orders: number;
+  pending_orders: number;
+  shipped_orders: number;
 }
 
 /**
@@ -79,18 +79,18 @@ export const getOrderByNumber = async (orderNumber: string): Promise<Order> => {
  * @returns A paginated list of orders.
  */
 export const getOrders = async (page = 1, status = 'all', search = ''): Promise<PaginatedOrders> => {
-    try {
-        const response = await axios.get<PaginatedOrders>(`${API_BASE_URL}/orders`, {
-            params: {
-                page,
-                status: status === 'all' ? '' : status,
-                search,
-            },
-        });
-        return response.data;
-    } catch (error) {
-        throw new Error('Failed to fetch orders');
-    }
+  try {
+    const response = await axios.get<PaginatedOrders>(`${API_BASE_URL}/orders`, {
+      params: {
+        page,
+        status: status === 'all' ? '' : status,
+        search,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to fetch orders');
+  }
 };
 
 /**
@@ -100,12 +100,12 @@ export const getOrders = async (page = 1, status = 'all', search = ''): Promise<
  * @returns The updated order.
  */
 export const updateOrderStatus = async (orderId: number, status: string): Promise<Order> => {
-    try {
-        const response = await axios.patch<{ order: Order }>(`${API_BASE_URL}/orders/${orderId}/status`, { status });
-        return response.data.order;
-    } catch (error) {
-        throw new Error('Failed to update order status');
-    }
+  try {
+    const response = await axios.patch<{ order: Order }>(`${API_BASE_URL}/orders/${orderId}/status`, { status });
+    return response.data.order;
+  } catch (error) {
+    throw new Error('Failed to update order status');
+  }
 };
 
 /**

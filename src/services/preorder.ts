@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api').replace(/\/$/, '');
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'https://web-production-d1120.up.railway.app/api').replace(/\/$/, '');
 const PREORDERS_API_PATH = (import.meta.env.VITE_PREORDERS_API_PATH || 'pre-orders').replace(/^\/+|\/+$/g, '');
 const PRODUCTS_API_PATH = (import.meta.env.VITE_PRODUCTS_API_PATH || 'products').replace(/^\/+|\/+$/g, '');
 
@@ -26,7 +26,7 @@ function extractValidationDetails(err: unknown): { message: string; errors?: Rec
       try {
         const msgs = Object.values(errors).flat().filter(Boolean) as string[];
         if (msgs.length) message = msgs.join(' ');
-      } catch {}
+      } catch { }
     }
     return { message: message || 'Validation failed (422). Please check your input.', errors };
   }

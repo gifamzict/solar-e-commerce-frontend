@@ -17,7 +17,7 @@ import { toast } from "sonner";
 import axios from "axios";
 
 // Define the base URL from environment variables
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://web-production-d1120.up.railway.app/api/';
 
 // API function to create category
 const createCategory = async (categoryData: { name: string; slug: string; description: string }) => {
@@ -60,72 +60,73 @@ export function AddCategoryDialog() {
   });
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" />
+    <Dialog open= { isOpen } onOpenChange = { setIsOpen } >
+      <DialogTrigger asChild >
+      <Button className="gap-2" >
+        <Plus className="h-4 w-4" />
           Add Category
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-lg">
-        <DialogHeader>
-          <DialogTitle>Add New Category</DialogTitle>
-          <DialogDescription>
+            </Button>
+            </DialogTrigger>
+            < DialogContent className = "max-w-lg" >
+              <DialogHeader>
+              <DialogTitle>Add New Category </DialogTitle>
+                <DialogDescription>
             Create a new product category for your solar products
-          </DialogDescription>
-        </DialogHeader>
-        <form
-          className="space-y-4 mt-4"
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (!name || !slug) {
-              toast.error("Please fill in all required fields.");
-              return;
-            }
-            createCategoryMutation.mutate({ name, slug, description });
-          }}
+    </DialogDescription>
+    </DialogHeader>
+    < form
+          className = "space-y-4 mt-4"
+  onSubmit = {(e) => {
+    e.preventDefault();
+    if (!name || !slug) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+    createCategoryMutation.mutate({ name, slug, description });
+  }
+}
         >
-          <div className="space-y-2">
-            <Label htmlFor="cat-name">Category Name *</Label>
-            <Input
-              id="cat-name"
-              placeholder="e.g., Solar Panels"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+  <div className="space-y-2" >
+    <Label htmlFor="cat-name" > Category Name * </Label>
+      < Input
+id = "cat-name"
+placeholder = "e.g., Solar Panels"
+value = { name }
+onChange = {(e) => setName(e.target.value)}
             />
-          </div>
+  </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="cat-slug">URL Slug *</Label>
-            <Input
-              id="cat-slug"
-              placeholder="e.g., solar-panels"
-              value={slug}
-              onChange={(e) => setSlug(e.target.value)}
+  < div className = "space-y-2" >
+    <Label htmlFor="cat-slug" > URL Slug * </Label>
+      < Input
+id = "cat-slug"
+placeholder = "e.g., solar-panels"
+value = { slug }
+onChange = {(e) => setSlug(e.target.value)}
             />
-          </div>
+  </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="cat-desc">Description</Label>
-            <Textarea
-              id="cat-desc"
-              placeholder="Brief description of this category..."
-              rows={3}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+  < div className = "space-y-2" >
+    <Label htmlFor="cat-desc" > Description </Label>
+      < Textarea
+id = "cat-desc"
+placeholder = "Brief description of this category..."
+rows = { 3}
+value = { description }
+onChange = {(e) => setDescription(e.target.value)}
             />
-          </div>
+  </div>
 
-          <div className="flex justify-end gap-3 pt-4">
-            <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={createCategoryMutation.isPending}>
-              {createCategoryMutation.isPending ? "Creating..." : "Create Category"}
-            </Button>
-          </div>
+  < div className = "flex justify-end gap-3 pt-4" >
+    <Button type="button" variant = "outline" onClick = {() => setIsOpen(false)}>
+      Cancel
+      </Button>
+      < Button type = "submit" disabled = { createCategoryMutation.isPending } >
+        { createCategoryMutation.isPending ? "Creating..." : "Create Category" }
+        </Button>
+        </div>
         </form>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+        </Dialog>
   );
 }

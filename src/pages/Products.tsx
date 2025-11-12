@@ -37,7 +37,7 @@ import { EditProductDialog } from "@/components/EditProductDialog";
 import { ensureNairaSymbol } from "@/lib/utils";
 
 // Define the base URL from environment variables
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api') + '/';
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'https://web-production-d1120.up.railway.app/api') + '/';
 
 // API functions
 const fetchProducts = async () => {
@@ -110,98 +110,101 @@ export default function Products() {
   };
 
   if (isLoading) {
-    return <div className="flex justify-center items-center h-64">Loading products...</div>;
+    return <div className="flex justify-center items-center h-64" > Loading products...</div>;
   }
 
   if (error) {
-    return <div className="text-center text-red-500">Error loading products: {error.message}</div>;
+    return <div className="text-center text-red-500" > Error loading products: { error.message } </div>;
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Products Management</h1>
-          <p className="text-muted-foreground mt-1">Manage your solar product catalog</p>
-        </div>
-        <Button onClick={() => setIsAddDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Product
-        </Button>
+    <div className= "space-y-6 animate-fade-in" >
+    <div className="flex items-center justify-between" >
+      <div>
+      <h1 className="text-3xl font-bold tracking-tight" > Products Management </h1>
+        < p className = "text-muted-foreground mt-1" > Manage your solar product catalog </p>
+          </div>
+          < Button onClick = {() => setIsAddDialogOpen(true)
+}>
+  <Plus className="h-4 w-4 mr-2" />
+    Add Product
+      </Button>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="relative flex-1">
+      < div className = "flex flex-col sm:flex-row gap-4" >
+        <div className="relative flex-1" >
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
+            <Input
             placeholder="Search products..."
-            className="pl-10"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+className = "pl-10"
+value = { searchQuery }
+onChange = {(e) => setSearchQuery(e.target.value)}
           />
-        </div>
-      </div>
+  </div>
+  </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>All Products ({filteredProducts.length})</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Product Name</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Price</TableHead>
-                <TableHead>Stock</TableHead>
-                <TableHead>Sales</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredProducts.map((product) => {
-                const categoryName = typeof product.category === 'object' ? product.category?.name : product.category;
-                const formattedPrice = typeof product.price === 'number' ? `₦${product.price.toLocaleString()}` : ensureNairaSymbol(product.price);
-                const status = product.stock > 10 ? 'Active' : product.stock > 0 ? 'Low Stock' : 'Out of Stock';
-                const sales = product.sales || '-';
-                return (
-                  <TableRow key={product.id} className="hover:bg-muted/50 transition-colors">
-                    <TableCell className="font-medium">{product.name}</TableCell>
-                    <TableCell className="text-muted-foreground">{categoryName}</TableCell>
-                    <TableCell className="font-semibold">{formattedPrice}</TableCell>
-                    <TableCell>{product.stock}</TableCell>
-                    <TableCell className="text-muted-foreground">{sales}</TableCell>
-                    <TableCell>
-                      <Badge className={statusColors[status as keyof typeof statusColors]}>
-                        {status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button variant="ghost" size="icon" onClick={() => handleEdit(product)}>
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDelete(product.id)}>
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
+  < Card >
+  <CardHeader>
+  <CardTitle>All Products({ filteredProducts.length }) </CardTitle>
+    </CardHeader>
+    < CardContent >
+    <Table>
+    <TableHeader>
+    <TableRow>
+    <TableHead>Product Name </TableHead>
+      < TableHead > Category </TableHead>
+      < TableHead > Price </TableHead>
+      < TableHead > Stock </TableHead>
+      < TableHead > Sales </TableHead>
+      < TableHead > Status </TableHead>
+      < TableHead className = "text-right" > Actions </TableHead>
+        </TableRow>
+        </TableHeader>
+        <TableBody>
+{
+  filteredProducts.map((product) => {
+    const categoryName = typeof product.category === 'object' ? product.category?.name : product.category;
+    const formattedPrice = typeof product.price === 'number' ? `₦${product.price.toLocaleString()}` : ensureNairaSymbol(product.price);
+    const status = product.stock > 10 ? 'Active' : product.stock > 0 ? 'Low Stock' : 'Out of Stock';
+    const sales = product.sales || '-';
+    return (
+      <TableRow key= { product.id } className = "hover:bg-muted/50 transition-colors" >
+        <TableCell className="font-medium" > { product.name } </TableCell>
+          < TableCell className = "text-muted-foreground" > { categoryName } </TableCell>
+            < TableCell className = "font-semibold" > { formattedPrice } </TableCell>
+              < TableCell > { product.stock } </TableCell>
+              < TableCell className = "text-muted-foreground" > { sales } </TableCell>
+                < TableCell >
+                <Badge className={ statusColors[status as keyof typeof statusColors] }>
+                  { status }
+                  </Badge>
+                  </TableCell>
+                  < TableCell className = "text-right" >
+                    <div className="flex justify-end gap-2" >
+                      <Button variant="ghost" size = "icon" onClick = {() => handleEdit(product)
+  }>
+  <Edit className="h-4 w-4" />
+  </Button>
+  < Button variant = "ghost" size = "icon" onClick = {() => handleDelete(product.id)}>
+    <Trash2 className="h-4 w-4 text-destructive" />
+      </Button>
+      </div>
+      </TableCell>
+      </TableRow>
                 );
               })}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+</TableBody>
+  </Table>
+  </CardContent>
+  </Card>
 
-      <AddProductDialog isOpen={isAddDialogOpen} onOpenChange={setIsAddDialogOpen} />
+  < AddProductDialog isOpen = { isAddDialogOpen } onOpenChange = { setIsAddDialogOpen } />
 
-      <EditProductDialog
-        product={editingProduct}
-        isOpen={isEditDialogOpen}
-        onOpenChange={setIsEditDialogOpen}
-      />
-    </div>
+    <EditProductDialog
+        product={ editingProduct }
+isOpen = { isEditDialogOpen }
+onOpenChange = { setIsEditDialogOpen }
+  />
+  </div>
   );
 }
