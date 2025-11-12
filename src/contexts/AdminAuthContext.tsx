@@ -61,12 +61,13 @@ const AdminAuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (response.data.token && response.data.admin) {
         const token = response.data.token;
-        const admin = response.data.admin;
+        const adminData = response.data.admin;
 
         localStorage.setItem("adminToken", token);
-        localStorage.setItem("adminData", JSON.stringify(admin));
-        setToken(token);
-        setAdmin(admin);
+        localStorage.setItem("adminData", JSON.stringify(adminData));
+        setIsAuthenticated(true);
+        setAdmin(adminData);
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
         return true;
       }
       return false;
