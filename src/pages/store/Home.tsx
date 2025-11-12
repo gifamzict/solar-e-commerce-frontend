@@ -182,14 +182,30 @@ export default function Home() {
             product.name?.toLowerCase?.().includes(key.toLowerCase())
           )?.[1] || defaultPanel;
 
-          // Use image_urls from backend if available (already contains full URLs)
-          // Otherwise fall back to processing images/image field
+          // Get product image - check multiple possible fields
           let dbImage;
-          if (product?.image_urls && Array.isArray(product.image_urls) && product.image_urls.length > 0) {
-            dbImage = product.image_urls[0]; // Backend already provides full URL
-          } else {
-            dbImage = getImageUrls(product?.images || product?.image)[0];
+
+          // Priority 1: Check if images field contains URLs (new cloud storage format)
+          if (product?.images && Array.isArray(product.images) && product.images.length > 0) {
+            const firstImage = product.images[0];
+            // If it's already a full URL, use it directly
+            if (typeof firstImage === 'string' && (firstImage.startsWith('http://') || firstImage.startsWith('https://'))) {
+              dbImage = firstImage;
+            } else {
+              // Otherwise process it with getImageUrls
+              dbImage = getImageUrls(product.images)[0];
+            }
           }
+          // Priority 2: Check image_urls field (backend processed URLs)
+          else if (product?.image_urls && Array.isArray(product.image_urls) && product.image_urls.length > 0) {
+            dbImage = product.image_urls[0];
+          }
+          // Priority 3: Check single image field
+          else if (product?.image) {
+            dbImage = getImageUrls([product.image])[0];
+          }
+
+          console.log('Product:', product.name, 'Image:', dbImage || defaultImage);
 
           // Derive a timestamp for sorting (prefer created_at/updated_at, fallback to id)
           const ts = new Date(product?.created_at || product?.updated_at || 0).getTime() || Number(product?.id) || 0;
