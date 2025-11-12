@@ -177,6 +177,13 @@ export default function Home() {
         console.log('Featured products response:', response.data);
         const allProducts = response.data.products || [];
         const normalized = allProducts.map((product: any) => {
+          console.log('Processing product:', {
+            name: product.name,
+            images: product.images,
+            image_urls: product.image_urls,
+            image: product.image
+          });
+
           // Determine default image based on product name
           const defaultImage = Object.entries(defaultImages).find(([key]) =>
             product.name?.toLowerCase?.().includes(key.toLowerCase())
