@@ -29,7 +29,7 @@ import defaultBattery from "@/assets/product-battery.jpg";
 import defaultMounting from "@/assets/product-mounting.jpg";
 import defaultStreetLight from "@/assets/product-street-light.jpg";
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'https://solar-e-commerce-backend-production.up.railway.app/api') + '/';
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'https://web-production-d1120.up.railway.app/api') + '/';
 
 // Map of default images based on product category or name
 const defaultImages: Record<string, string> = {
@@ -177,51 +177,13 @@ export default function Home() {
         console.log('Featured products response:', response.data);
         const allProducts = response.data.products || [];
         const normalized = allProducts.map((product: any) => {
-          console.log('Processing product:', {
-            name: product.name,
-            images: product.images,
-            image_urls: product.image_urls,
-            image: product.image
-          });
-
           // Determine default image based on product name
           const defaultImage = Object.entries(defaultImages).find(([key]) =>
             product.name?.toLowerCase?.().includes(key.toLowerCase())
           )?.[1] || defaultPanel;
 
-          // Get product image - check multiple possible fields
-          let dbImage;
-
-          // Priority 1: Check if images field contains URLs (new cloud storage format)
-          if (product?.images && Array.isArray(product.images) && product.images.length > 0) {
-            let firstImage = product.images[0];
-            console.log('First image value:', firstImage, 'Type:', typeof firstImage);
-
-            // Fix: Backend incorrectly prepends storage path to cloud URLs
-            // Remove the incorrect prefix if it exists
-            if (typeof firstImage === 'string') {
-              // Check if backend added storage path to a full URL (e.g., .../storage/https://...)
-              const storageHttpsPattern = /.*\/storage\/(https?:\/\/.*)/;
-              const match = firstImage.match(storageHttpsPattern);
-              if (match && match[1]) {
-                firstImage = match[1]; // Extract the actual cloud URL
-                console.log('Extracted cloud URL from mangled path:', firstImage);
-              }
-
-              dbImage = firstImage;
-              console.log('Using final URL:', dbImage);
-            }
-          }
-          // Priority 2: Check image_urls field (backend processed URLs)
-          else if (product?.image_urls && Array.isArray(product.image_urls) && product.image_urls.length > 0) {
-            dbImage = product.image_urls[0];
-          }
-          // Priority 3: Check single image field
-          else if (product?.image) {
-            dbImage = getImageUrls([product.image])[0];
-          }
-
-          console.log('Product:', product.name, 'Image:', dbImage || defaultImage);
+          // Build image from database paths like ProductDetail
+          const dbImage = getImageUrls(product?.images || product?.image)[0];
 
           // Derive a timestamp for sorting (prefer created_at/updated_at, fallback to id)
           const ts = new Date(product?.created_at || product?.updated_at || 0).getTime() || Number(product?.id) || 0;
@@ -576,13 +538,7 @@ export default function Home() {
                     < div className = "grid md:grid-cols-2 lg:grid-cols-4 gap-6" >
                     {
                       preordersToShow.map((item: any) => {
-                        // Use image_urls from backend if available (already contains full URLs)
-                        let image;
-                        if (item?.image_urls && Array.isArray(item.image_urls) && item.image_urls.length > 0) {
-                          image = item.image_urls[0]; // Backend already provides full URL
-                        } else {
-                          image = getImageUrls(item?.images)?.[0] || defaultPanel;
-                        }
+                        const image = getImageUrls(item?.images || item?.image_urls)?.[0] || defaultPanel;
                         const price = `₦${Number(item?.preorder_price ?? 0).toLocaleString()}`;
                         const expected = item?.expected_availability_date || '-';
                         return (
