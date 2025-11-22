@@ -29,7 +29,7 @@ import defaultBattery from "@/assets/product-battery.jpg";
 import defaultMounting from "@/assets/product-mounting.jpg";
 import defaultStreetLight from "@/assets/product-street-light.jpg";
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'https://web-production-d1120.up.railway.app/api') + '/';
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'https://solar-e-commerce-backend-production.up.railway.app/api') + '/';
 
 // Map of default images based on product category or name
 const defaultImages: Record<string, string> = {
