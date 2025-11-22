@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 // Define the base URL from environment variables
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'https://web-production-d1120.up.railway.app/api').replace(/\/$/, "");
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'https://solar-e-commerce-backend-production.up.railway.app/api').replace(/\/$/, "");
 
 // API functions
 const fetchCategories = async () => {

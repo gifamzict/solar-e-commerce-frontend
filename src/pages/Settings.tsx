@@ -13,7 +13,7 @@ import { fetchPickupLocations, PickupLocation } from "@/services/pickup-location
 import { Badge } from "@/components/ui/badge";
 import { MapPin } from "lucide-react";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://web-production-d1120.up.railway.app/api/';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://solar-e-commerce-backend-production.up.railway.app/api/';
 
 export default function Settings() {
   const [settings, setSettings] = useState({

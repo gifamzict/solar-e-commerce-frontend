@@ -1,7 +1,7 @@
 // filepath: /Users/gifamz/Desktop/G-TechSolar/gifamz-admin-dash/src/services/inventory.ts
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://web-production-d1120.up.railway.app/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://solar-e-commerce-backend-production.up.railway.app/api';
 
 export interface InventoryOverview {
   total_items: number;

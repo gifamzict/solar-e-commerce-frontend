@@ -25,7 +25,7 @@ const formatCurrency = (value: number, currency = "NGN") => {
   }
 };
 
-const BASE_URL = (import.meta.env.VITE_API_BASE_URL || "https://web-production-d1120.up.railway.app/api").replace(/\/$/, "") + "/reports";
+const BASE_URL = (import.meta.env.VITE_API_BASE_URL || "https://solar-e-commerce-backend-production.up.railway.app/api").replace(/\/$/, "") + "/reports";
 
 // Color palette aligning with CSS vars fallbacks
 const PIE_COLORS = [

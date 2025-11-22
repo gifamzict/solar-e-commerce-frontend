@@ -75,7 +75,7 @@ const getNumericPrice = (product: any): number | null => {
 
 export default function AllProducts() {
   const [priceRange, setPriceRange] = useState([0, 500000]);
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://web-production-d1120.up.railway.app/api/';
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://solar-e-commerce-backend-production.up.railway.app/api/';
 
   // Fetch all products (robust to various API shapes)
   const { data: productsResponse, isLoading } = useQuery({

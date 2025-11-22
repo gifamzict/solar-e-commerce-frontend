@@ -138,7 +138,7 @@ class PaymentService {
   private baseURL: string;
 
   constructor() {
-    this.baseURL = import.meta.env.VITE_API_BASE_URL || 'https://web-production-d1120.up.railway.app/api';
+    this.baseURL = import.meta.env.VITE_API_BASE_URL || 'https://solar-e-commerce-backend-production.up.railway.app/api';
   }
 
   async initializePayment(checkoutData: CheckoutData): Promise<PaymentInitResponse> {

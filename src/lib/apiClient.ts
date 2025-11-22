@@ -1,14 +1,14 @@
 /**
  * Axios API Client Configuration
  * 
- * Production API: https://web-production-d1120.up.railway.app/api
+ * Production API: https://solar-e-commerce-backend-production.up.railway.app/api
  */
 
 import axios from 'axios';
 import { toast } from 'sonner';
 
 // Get API base URL from environment variable
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://web-production-d1120.up.railway.app/api';
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://solar-e-commerce-backend-production.up.railway.app/api';
 
 // Create axios instance with default configuration
 const apiClient = axios.create({
@@ -146,7 +146,7 @@ export const getImageUrl = (path: string | null | undefined): string => {
     }
 
     // Otherwise, construct the full URL
-    const baseUrl = 'https://web-production-d1120.up.railway.app';
+    const baseUrl = 'https://solar-e-commerce-backend-production.up.railway.app';
     return `${baseUrl}${path.startsWith('/') ? '' : '/'}${path}`;
 };
 

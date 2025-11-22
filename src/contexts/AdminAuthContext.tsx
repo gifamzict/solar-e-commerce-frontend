@@ -24,7 +24,7 @@ interface AdminAuthContextType {
 
 const AdminAuthContext = createContext<AdminAuthContextType | undefined>(undefined);
 
-const API_URL = import.meta.env.VITE_API_BASE_URL || "https://web-production-d1120.up.railway.app/api";
+const API_URL = import.meta.env.VITE_API_BASE_URL || "https://solar-e-commerce-backend-production.up.railway.app/api";
 
 const useAdminAuth = () => {
   const context = useContext(AdminAuthContext);

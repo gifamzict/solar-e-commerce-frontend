@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'https://web-production-d1120.up.railway.app/api').replace(/\/$/, '');
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'https://solar-e-commerce-backend-production.up.railway.app/api').replace(/\/$/, '');
 const PREORDERS_API_PATH = (import.meta.env.VITE_PREORDERS_API_PATH || 'pre-orders').replace(/^\/+|\/+$/g, '');
 const PRODUCTS_API_PATH = (import.meta.env.VITE_PRODUCTS_API_PATH || 'products').replace(/^\/+|\/+$/g, '');
 

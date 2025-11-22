@@ -29,7 +29,7 @@ export function getImageUrl(imagePath: string | undefined | null, baseUrl?: stri
   }
 
   // Get base URL from parameter or environment variable
-  const apiBaseUrl = baseUrl || import.meta.env.VITE_API_BASE_URL || 'https://web-production-d1120.up.railway.app/api';
+  const apiBaseUrl = baseUrl || import.meta.env.VITE_API_BASE_URL || 'https://solar-e-commerce-backend-production.up.railway.app/api';
 
   // Remove /api/ from the end if present to get the base domain
   const backendBaseUrl = apiBaseUrl.replace(/\/api\/?$/, '');
@@ -101,7 +101,7 @@ export function ensureNairaSymbol(text: string): string {
 }
 
 export function apiUrl(path: string): string {
-  const base = import.meta.env.VITE_API_BASE_URL || 'https://web-production-d1120.up.railway.app/api';
+  const base = import.meta.env.VITE_API_BASE_URL || 'https://solar-e-commerce-backend-production.up.railway.app/api';
   const cleanBase = String(base).replace(/\/?$/, '');
   const cleanPath = String(path).replace(/^\//, '');
   return `${cleanBase}/${cleanPath}`;
